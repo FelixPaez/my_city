@@ -1,0 +1,916 @@
+/* El plan: fotos de las de antes, fecha y hora (almanaque y arco del sol), y resumen. */
+
+@layer components {
+  /* ---------- Estructura común ---------- */
+
+  .screen-header {
+    max-width: 34rem;
+    margin: 0.5rem auto 0;
+    text-align: center;
+  }
+  .screen-actions {
+    position: sticky;
+    bottom: calc(-1 * (env(safe-area-inset-bottom) + 1.5rem));
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.25rem calc(-1 * var(--gutter)) calc(-1 * (env(safe-area-inset-bottom) + 1.5rem));
+    padding: 1.25rem var(--gutter) calc(env(safe-area-inset-bottom) + 1.25rem);
+  }
+  /* Penumbra detrás de los botones; sigue hasta el fondo para que no quede un corte recto. */
+  .screen-actions::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -100vh;
+    z-index: -1;
+    background: linear-gradient(180deg, transparent, rgb(27 33 64 / 0.3) 4.5rem);
+    pointer-events: none;
+  }
+  /* Cada botón parte de su texto y crecen a la par: «Volver» cede sitio al principal. */
+  .screen-actions > * {
+    flex: 1 1 auto;
+    max-width: 18rem;
+    white-space: nowrap;
+  }
+  :root[data-mood='night'] .screen-actions::before {
+    background: linear-gradient(180deg, transparent, rgb(11 16 41 / 0.5) 4.5rem);
+  }
+
+  /* ---------- Imagen de la foto ---------- */
+
+  .place-art {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--color-linen);
+  }
+  /* Toque de foto antigua: viñeta y luz cálida (también sobre las fotos reales). */
+  .place-art::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 78% 72% at 50% 46%, rgb(74 44 28 / 0) 55%, rgb(74 44 28 / 0.3) 100%),
+      linear-gradient(rgb(255 214 160 / 0.1), rgb(255 214 160 / 0.1));
+  }
+  .place-illustration,
+  .place-art__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .place-art__photo {
+    object-fit: cover;
+    opacity: 0;
+    filter: sepia(0.2) saturate(0.92) contrast(1.03);
+    transition: opacity var(--duration-enter) var(--ease-surface);
+  }
+  .place-art__photo.is-loaded {
+    opacity: 1;
+  }
+
+  /* Detalles vivos de las ilustraciones, solo en la foto activa y en el resumen. */
+  .place-card[data-active] .art-twinkle,
+  .summary-card .art-twinkle {
+    animation: art-twinkle 2.8s var(--ease-swell) infinite alternate;
+  }
+  .place-card[data-active] .art-glow,
+  .summary-card .art-glow {
+    animation: art-twinkle 2.4s var(--ease-swell) infinite alternate;
+  }
+  .place-card[data-active] .art-flicker,
+  .summary-card .art-flicker {
+    transform-origin: 271px 244px;
+    animation: art-flicker 1.6s var(--ease-swell) infinite alternate;
+  }
+  .place-card[data-active] .art-wave,
+  .summary-card .art-wave {
+    animation: art-wave 4s var(--ease-swell) infinite alternate;
+  }
+
+  /* ---------- Foto de las de antes ---------- */
+
+  /* La sombra va en el contenedor: la máscara del borde ondulado se la llevaría. */
+  .photo-card {
+    position: relative;
+    filter: drop-shadow(0 14px 20px rgb(27 33 64 / 0.3)) drop-shadow(0 2px 3px rgb(27 33 64 / 0.16));
+  }
+  /* Borde ondulado: el contenido entero + círculos en el margen (técnica de máscara «round»). */
+  .photo-card__paper {
+    --r: 5px;
+    padding: var(--r);
+    background: #fbf6ea;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      radial-gradient(var(--r), #000 98%, #0000) 0 0 / calc(2 * var(--r)) calc(2 * var(--r)) round;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      radial-gradient(var(--r), #000 98%, #0000) 0 0 / calc(2 * var(--r)) calc(2 * var(--r)) round;
+  }
+  .photo-card__paper--kraft {
+    background: #d8bf98;
+  }
+  .photo-card__inner {
+    padding: 0.55rem 0.55rem 0.9rem;
+  }
+  .photo-card__image {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    background: var(--color-linen);
+  }
+  .photo-card__badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 1;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: var(--color-wine);
+    color: var(--color-cream);
+    font-size: 0.625rem;
+  }
+  .photo-card__caption {
+    position: relative;
+    padding: 0.85rem 0.35rem 0.1rem;
+  }
+  .photo-card__seal {
+    position: absolute;
+    top: -1.9rem;
+    right: 0.1rem;
+  }
+  .photo-card__title {
+    padding-right: 3.6rem;
+    font-family: var(--font-script);
+    font-size: 2.05rem;
+    line-height: 1.05;
+    color: var(--color-indigo);
+  }
+  .photo-card__tagline {
+    margin-top: 0.3rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.12rem;
+    line-height: 1.3;
+    color: var(--color-ink-soft);
+  }
+  .photo-card__description {
+    margin-top: 0.55rem;
+    font-size: var(--text-small);
+    color: var(--color-ink-soft);
+  }
+
+  /* ---------- Carrusel de fotos ---------- */
+
+  .plan {
+    --card-w: min(78vw, 20.5rem);
+  }
+  .carousel-wrap {
+    position: relative;
+    margin: 0.75rem calc(-1 * var(--gutter)) 0;
+  }
+  .carousel {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: 3.25rem calc(50% - var(--card-w) / 2) 1.5rem;
+  }
+  .carousel::-webkit-scrollbar {
+    display: none;
+  }
+  .place-card {
+    flex: 0 0 var(--card-w);
+    scroll-snap-align: center;
+    perspective: 1400px;
+    opacity: 0.75;
+    transform: scale(0.93) rotate(-1.5deg);
+    transition:
+      transform var(--duration-enter) var(--ease-surface),
+      opacity var(--duration-enter) var(--ease-surface);
+  }
+  .place-card:nth-child(even) {
+    transform: scale(0.93) rotate(1.4deg);
+  }
+  .place-card[data-active] {
+    opacity: 1;
+    transform: none;
+  }
+  .place-card__flip {
+    position: relative;
+    display: grid;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .place-card__face {
+    grid-area: 1 / 1;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  /* El reverso de la foto sorpresa: cartulina, una «?» escrita a mano y la pista. */
+  .place-card__back {
+    transform: rotateY(180deg);
+    display: grid;
+    filter: drop-shadow(0 14px 20px rgb(27 33 64 / 0.3));
+  }
+  .place-card__back > .photo-card__paper {
+    display: grid;
+  }
+  .place-card__back-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 1.5px dashed rgb(92 56 36 / 0.35);
+    border-radius: 2px;
+    color: #5c3824;
+    text-align: center;
+  }
+  .place-card__question {
+    font-family: var(--font-script);
+    font-size: 8rem;
+    line-height: 0.9;
+    color: var(--color-wine);
+  }
+  .place-card__back-title {
+    font-family: var(--font-script);
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+  .place-card__back-badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: var(--color-wine);
+    color: var(--color-cream);
+    font-size: 0.625rem;
+  }
+  .place-card__hint {
+    margin-top: 0.6rem;
+    color: #6e4a34;
+  }
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .carousel-dots > span {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--on-sea);
+    opacity: 0.5;
+    transition: opacity var(--duration-enter) var(--ease-surface), transform var(--duration-enter) var(--ease-surface);
+  }
+  .carousel-dots > span[data-active] {
+    background: var(--on-sea);
+    opacity: 0.9;
+    transform: scale(1.15);
+  }
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-top: -1.375rem;
+    border-radius: 50%;
+    color: var(--color-indigo);
+    box-shadow: var(--shadow-soft);
+  }
+  .carousel-arrow[data-dir='-1'] {
+    left: 0.5rem;
+  }
+  .carousel-arrow[data-dir='1'] {
+    right: 0.5rem;
+  }
+  .carousel-arrow:disabled {
+    opacity: 0.35;
+  }
+
+  /* Lacre: un hueco punteado y el lacre que cae encima al elegir. */
+  .seal-drop {
+    position: relative;
+    width: 58px;
+    height: 58px;
+  }
+  .seal-drop__slot {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    border: 1.5px dashed rgb(126 35 51 / 0.35);
+  }
+  .seal-drop__seal {
+    position: absolute;
+    inset: 0;
+    filter: drop-shadow(0 2px 2px rgb(27 33 64 / 0.3));
+  }
+  .seal-drop__seal > svg {
+    display: block;
+  }
+
+  @media (min-width: 1024px) {
+    .plan {
+      --card-w: 18.5rem;
+    }
+    .carousel-wrap {
+      margin: 1rem calc(-1 * var(--gutter)) 0;
+    }
+    .carousel {
+      --edge: max(4rem, calc((100vw - 60rem) / 2));
+      padding-inline: var(--edge);
+      scroll-padding-inline: var(--edge);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 3rem, #000 calc(100% - 3rem), transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 3rem, #000 calc(100% - 3rem), transparent);
+    }
+    .carousel-arrow[data-dir='-1'] {
+      left: calc(var(--gutter) + 1rem);
+    }
+    .carousel-arrow[data-dir='1'] {
+      right: calc(var(--gutter) + 1rem);
+    }
+    /* Como fotos sobre una mesa: algo giradas; la que se señala se endereza. */
+    .place-card,
+    .place-card[data-active] {
+      opacity: 1;
+      transform: rotate(-1.6deg);
+    }
+    .place-card:nth-child(even) {
+      transform: rotate(1.3deg);
+    }
+    .place-card:nth-child(3n) {
+      transform: rotate(-0.8deg);
+    }
+    .place-card:hover,
+    .place-card:focus-within,
+    .place-card[data-selected] {
+      transform: translateY(-6px) rotate(0deg);
+    }
+    .carousel-dots {
+      display: none;
+    }
+  }
+
+  /* ---------- Fecha y hora ---------- */
+
+  .when__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    max-width: 30rem;
+    margin: 1rem auto 0;
+  }
+  /* Sin esto la tira de días (más ancha que la pantalla) ensancha la columna. */
+  .when__days,
+  .when__times {
+    min-width: 0;
+  }
+  .day-strip {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+    margin: 0 calc(-1 * var(--gutter));
+    padding: 1.25rem var(--gutter) 1.5rem;
+  }
+  .day-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .day {
+    position: relative;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    min-width: 3.7rem;
+    border-radius: 0.6rem;
+    color: var(--color-indigo);
+    transition: opacity var(--duration-enter) var(--ease-surface);
+  }
+  .day__float {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    gap: 0.1rem;
+    overflow: hidden;
+    padding: 0 0 0.6rem;
+    border-radius: inherit;
+    background: linear-gradient(180deg, #fffaf0, #f4ead8);
+    box-shadow:
+      inset 0 0 0 1px rgb(42 47 79 / 0.1),
+      var(--shadow-soft);
+  }
+  /* La franja de arriba, como en los almanaques de pared. */
+  .day__name {
+    justify-self: stretch;
+    padding: 0.28rem 0.4rem 0.22rem;
+    background: var(--color-wine);
+    color: var(--color-cream);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: capitalize;
+  }
+  .day__month {
+    height: 0.85rem;
+    margin-top: 0.15rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-dusk);
+  }
+  .day__number {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    line-height: 1;
+    font-weight: 600;
+  }
+  .day__moon {
+    margin-top: 0.2rem;
+    color: var(--color-indigo);
+  }
+  /* La sombra bajo la hoja: se estira cuando el día está elegido. */
+  .day__reflection {
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    bottom: -0.6rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(27 33 64 / 0.3), transparent);
+    opacity: 0;
+    transform: scaleX(0.6);
+    transition:
+      opacity var(--duration-enter) var(--ease-surface),
+      transform var(--duration-enter) var(--ease-surface);
+  }
+  .day[data-selected] .day__float {
+    box-shadow:
+      inset 0 0 0 2px var(--color-wine),
+      var(--shadow-float);
+    animation: day-buoy 2.6s var(--ease-swell) 0.5s infinite alternate;
+  }
+  .day[data-selected] .day__reflection {
+    opacity: 1;
+    transform: scaleX(1.1);
+  }
+  .day[data-dim] {
+    opacity: 0.62;
+  }
+  .day:disabled {
+    opacity: 0.34;
+    cursor: not-allowed;
+  }
+  .day:disabled .day__name {
+    background: var(--color-ink-soft);
+  }
+  .day:disabled .day__number {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+
+  .tide-table {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.6rem 0.5rem;
+    padding: 1rem 1.25rem 1.5rem;
+    border-radius: var(--radius-card);
+  }
+  .tide-table__head {
+    text-align: center;
+    color: var(--on-sea-soft);
+  }
+  .day--compact {
+    min-width: 0;
+  }
+
+  .when__caption {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 1.5rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+  .when__caption-moon {
+    --moon-lit: currentColor;
+    --moon-shadow: transparent;
+  }
+  .when__caption.pill,
+  .when__quip {
+    width: fit-content;
+    margin-inline: auto;
+    padding: 0.3rem 0.95rem;
+  }
+  .when__quip {
+    margin-top: 0.5rem;
+    text-align: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
+  .card-panel {
+    border-radius: var(--radius-card);
+    padding: 1.4rem 1.25rem 1.25rem;
+    box-shadow: var(--shadow-soft);
+  }
+  /* ---------- Arco de la hora ---------- */
+
+  .time-arc {
+    margin-top: 0.75rem;
+  }
+  .time-arc__dial {
+    position: relative;
+    max-width: 21rem;
+    margin: 0 auto;
+    padding-bottom: 1.4rem;
+    border-radius: 1rem;
+    outline: none;
+  }
+  .time-arc__dial:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--color-indigo),
+      0 0 0 5px rgb(251 246 236 / 0.9);
+  }
+  /* El arco no deja desplazar la página mientras ella arrastra el sol. */
+  .time-arc__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    touch-action: none;
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .time-arc__svg[data-dragging] {
+    cursor: grabbing;
+  }
+  .time-arc__city {
+    fill: var(--color-indigo);
+    opacity: 0.12;
+  }
+  .time-arc__hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 60;
+    stroke-linecap: round;
+  }
+  .time-arc__rail {
+    fill: none;
+    stroke: rgb(42 47 79 / 0.08);
+    stroke-width: 18;
+    stroke-linecap: round;
+  }
+  .time-arc__track {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+  .time-arc__tick {
+    fill: rgb(42 47 79 / 0.35);
+  }
+  .time-arc__shade {
+    fill: rgb(27 33 64 / 0.18);
+  }
+  .time-arc__body {
+    stroke: rgb(255 255 255 / 0.9);
+    stroke-width: 1.5;
+  }
+  .time-arc__readout {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 40%;
+    display: grid;
+    justify-items: center;
+    pointer-events: none;
+  }
+  .time-arc__clock {
+    font-family: var(--font-serif);
+    font-size: 2.75rem;
+    line-height: 1;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-indigo);
+  }
+  .time-arc__daypart {
+    margin-top: 0.3rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-ink-soft);
+  }
+  .time-arc__end {
+    position: absolute;
+    top: calc(80% - 0.6rem);
+    transform: translateX(-50%);
+    font-size: var(--text-label);
+    font-weight: 700;
+    color: var(--color-ink-soft);
+    pointer-events: none;
+  }
+  .time-arc__sunset {
+    margin-top: 0.4rem;
+    text-align: center;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-dusk);
+  }
+  .time-arc__hint {
+    margin-top: 0.2rem;
+    text-align: center;
+    font-size: var(--text-label);
+    color: var(--color-ink-soft);
+  }
+
+  /* La nota: renglones de carta y cursiva. 16 px como mínimo: iOS no hace zoom. */
+  .note {
+    position: relative;
+    display: block;
+    margin-top: 1.4rem;
+  }
+  .note__field {
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0 0.25rem;
+    border: 0;
+    resize: none;
+    background: repeating-linear-gradient(
+      180deg,
+      transparent 0 calc(1.75rem - 1px),
+      rgb(42 47 79 / 0.2) calc(1.75rem - 1px) 1.75rem
+    );
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: max(1rem, 1.0625rem);
+    line-height: 1.75rem;
+    color: var(--color-indigo);
+    outline: none;
+  }
+  .note__field::placeholder {
+    color: rgb(91 86 111 / 0.75);
+  }
+  .note__field:focus-visible {
+    box-shadow: 0 2px 0 var(--color-dusk);
+  }
+  .note__count {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: var(--text-label);
+    color: var(--color-ink-soft);
+  }
+
+  @media (min-width: 1024px) {
+    .when__grid {
+      max-width: 64rem;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: start;
+      gap: 2.5rem;
+    }
+    .tide-table {
+      background: rgb(251 246 236 / 0.32);
+    }
+  }
+
+  /* ---------- Sin conexión ---------- */
+
+  .retry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    min-height: 60dvh;
+    max-width: 24rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .retry__message {
+    padding: 1rem 1.4rem;
+    border-radius: var(--radius-card);
+  }
+
+  /* ---------- Resumen ---------- */
+
+  .summary-card {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    max-width: 26rem;
+    margin: 1.25rem auto 0;
+    padding: 0.75rem;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-float);
+  }
+  .summary-card__art {
+    position: relative;
+    display: block;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 0 5px #fbf6ea, 0 0 0 6px rgb(42 47 79 / 0.12);
+  }
+  .summary-card__side {
+    position: relative;
+    padding: 1rem 0.5rem 0.5rem;
+  }
+  .summary-card__stamps {
+    position: absolute;
+    top: -2.2rem;
+    right: 0.5rem;
+    width: 58px;
+    height: 58px;
+  }
+  /* En móvil el matasellos cae sobre el borde de la imagen: las ondas no tachan el título.
+     La tinta va encima del sello, pero la fecha queda fuera de él para leerse bien. */
+  .summary-card__postmark {
+    position: absolute;
+    z-index: 2;
+    top: -2.6rem;
+    right: 2.4rem;
+    color: var(--color-wine);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .summary-card__title {
+    padding-right: 7rem;
+    font-family: var(--font-script);
+    font-size: 2.2rem;
+    line-height: 1.05;
+    color: var(--color-indigo);
+  }
+  .summary-card__tagline {
+    margin-top: 0.3rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.12rem;
+    color: var(--color-ink-soft);
+  }
+  .address {
+    display: grid;
+    margin-top: 1rem;
+  }
+  .address__line {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px dashed rgb(42 47 79 / 0.2);
+  }
+  .address__line dt {
+    color: var(--color-dusk);
+  }
+  .address__value {
+    display: flex;
+    width: 100%;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    text-align: left;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--color-indigo);
+  }
+  .address__value svg {
+    flex: none;
+    color: var(--color-dusk);
+    opacity: 0.7;
+  }
+  .address__value.is-muted {
+    color: var(--color-ink-soft);
+  }
+  .summary__actions {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 26rem;
+    margin: 1.5rem auto 0;
+  }
+  .summary__copy {
+    justify-self: center;
+    min-height: 2.75rem;
+    padding: 0 1.1rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: var(--on-sea);
+  }
+
+  /* Escritorio: la foto a un lado y los datos al otro, como el dorso de una postal. */
+  @media (min-width: 1024px) {
+    .summary-card {
+      max-width: 52rem;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 1.5rem;
+      padding: 1rem;
+    }
+    .summary-card__side {
+      padding: 1.5rem 1rem 1rem 0;
+      border-left: 1px solid rgb(42 47 79 / 0.12);
+      padding-left: 1.5rem;
+    }
+    /* La imagen ocupa todo el alto de su mitad de la tarjeta. */
+    .summary-card__art {
+      aspect-ratio: auto;
+      min-height: 18rem;
+    }
+    .summary-card__stamps {
+      top: 1rem;
+      right: 1rem;
+    }
+    .summary-card__postmark {
+      top: 0.6rem;
+    }
+    .summary-card__title {
+      margin-top: 7rem;
+      padding-right: 0;
+    }
+    .summary__actions {
+      grid-template-columns: 1.4fr 1fr;
+      max-width: 52rem;
+    }
+    .summary__copy {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+}
+
+@keyframes art-twinkle {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes art-flicker {
+  from {
+    transform: scale(1, 1) rotate(-2deg);
+  }
+  to {
+    transform: scale(0.94, 1.08) rotate(2deg);
+  }
+}
+@keyframes art-steam {
+  0% {
+    transform: translate3d(0, 6px, 0);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(0, -10px, 0);
+    opacity: 0;
+  }
+}
+@keyframes art-wave {
+  from {
+    transform: translate3d(-6px, 0, 0);
+  }
+  to {
+    transform: translate3d(6px, 2px, 0);
+  }
+}
+@keyframes day-buoy {
+  from {
+    transform: translate3d(0, -1.5px, 0);
+  }
+  to {
+    transform: translate3d(0, 2px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art-twinkle,
+  .art-steam,
+  .art-glow,
+  .art-flicker,
+  .art-wave,
+  .day[data-selected] .day__float {
+    animation: none !important;
+  }
+  .place-card,
+  .place-card:nth-child(even),
+  .place-card[data-active] {
+    transform: none;
+  }
+}

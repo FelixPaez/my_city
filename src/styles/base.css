@@ -1,0 +1,98 @@
+@layer base {
+  html {
+    height: 100%;
+    background: var(--color-haze);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    color: var(--color-indigo);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    height: 100%;
+  }
+
+  button {
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: default;
+  }
+
+  ::selection {
+    background: var(--color-peach);
+    color: var(--color-night);
+  }
+
+  /* Anillo de foco visible sobre papel claro y sobre el cielo de noche. */
+  :focus-visible {
+    outline: 2px solid var(--color-indigo);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgb(251 246 236 / 0.9);
+  }
+}
+
+/*
+ * Texto que va directamente sobre el cielo de la ciudad: cambia de color con la hora.
+ * (Las utilidades se llaman `text-on-sea` por herencia del proyecto del mar.)
+ * De mañana y de día, tinta índigo; al atardecer y de noche el cielo es oscuro: crema.
+ */
+:root {
+  --on-sea: var(--color-indigo);
+  --on-sea-soft: var(--color-ink-soft);
+  --veil: rgb(251 246 236 / 0.7);
+  --sky-top: #84b2e2;
+}
+
+:root[data-mood='morning'] {
+  --sky-top: #9fb7de;
+}
+
+:root[data-mood='sunset'] {
+  --on-sea: var(--color-cream);
+  --on-sea-soft: var(--color-blush);
+  --veil: rgb(27 33 64 / 0.42);
+  --sky-top: #2c3566;
+}
+
+:root[data-mood='night'] {
+  --on-sea: var(--color-cream);
+  --on-sea-soft: var(--color-blush);
+  --veil: rgb(11 16 41 / 0.55);
+  --sky-top: #0b1029;
+}
+
+@utility text-on-sea {
+  color: var(--on-sea);
+  transition: color var(--duration-ambient) var(--ease-swell);
+}
+
+@utility text-on-sea-soft {
+  color: var(--on-sea-soft);
+  transition: color var(--duration-ambient) var(--ease-swell);
+}
+
+/* Etiquetas en versalitas espaciadas (días, matasellos, progreso). */
+@utility label-caps {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  font-weight: 600;
+  text-transform: uppercase;
+}

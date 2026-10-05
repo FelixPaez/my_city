@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es" data-mood="day">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#84b2e2" />
+    <meta name="color-scheme" content="only light" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <style>
+      /* Primer pintado: el cielo y la ciudad ya están aquí aunque el JS tarde en llegar. */
+      html {
+        background: #84b2e2;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(
+          180deg,
+          #84b2e2 0%,
+          #b9d3ee 30%,
+          #e6e7ef 50%,
+          #f5ead9 60%,
+          #d9cfb8 60.2%,
+          #d6cbb9 80%,
+          #cfbda2 80.2%,
+          #cfbda2 86.4%,
+          #3a3346 86.5%,
+          #3a3346 100%
+        );
+      }
+      @media (min-width: 1024px) {
+        body {
+          background: linear-gradient(
+            180deg,
+            #84b2e2 0%,
+            #b9d3ee 31%,
+            #e6e7ef 52%,
+            #f5ead9 62%,
+            #d9cfb8 62.2%,
+            #d6cbb9 80%,
+            #cfbda2 80.2%,
+            #cfbda2 85.9%,
+            #3a3346 86%,
+            #3a3346 100%
+          );
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Esta invitación necesita JavaScript para abrir la carta.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

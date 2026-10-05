@@ -1,0 +1,115 @@
+/*
+ * Tokens del sistema de diseño: la única fuente de colores, tipografía,
+ * radios, sombras y curvas. Las curvas y duraciones están replicadas en
+ * src/design/motion.ts (un test comprueba que coinciden).
+ *
+ * Paleta «atardecer colonial» de Santa Clara: cielo índigo que cae a rosa y ámbar,
+ * tejas terracota, fachadas ocre, luz de farola y el vino del lacre.
+ * Contrastes WCAG verificados (texto / fondo): ver docs/PLAN.md.
+ *   indigo y ink-soft sobre cream/paper/linen; cream sobre indigo y night.
+ *   dusk solo en etiquetas pequeñas sobre papel; rose, peach y lamp nunca son fondo de texto.
+ */
+
+@theme static {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-cream: #fbf6ec;
+  --color-paper: #f6efe2;
+  --color-linen: #efe6d6;
+  --color-haze: #e9e2ee;
+  --color-blush: #f3dcd3;
+  --color-peach: #f2b48f;
+  --color-lavender: #b7a8cf;
+  --color-rose: #d98a8f;
+  --color-dusk: #66558a;
+  --color-indigo: #2a2f4f;
+  --color-night: #1b2140;
+  --color-ink-soft: #5b566f;
+  --color-sand: #f2e8d8;
+  --color-lamp: #ffd58a;
+  --color-terracotta: #b4553a;
+  --color-ochre: #e2b866;
+  --color-wine: #7e2333;
+
+  --font-*: initial;
+  --font-serif: 'Cormorant Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-script: 'Parisienne', 'Snell Roundhand', 'Segoe Script', cursive;
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-*: initial;
+  --text-display: var(--fs-display);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.01em;
+  --text-title: var(--fs-title);
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: 0;
+  --text-letter: var(--fs-letter);
+  --text-letter--line-height: 1.45;
+  --text-script: var(--fs-script);
+  --text-script--line-height: 1.15;
+  --text-body: var(--fs-body);
+  --text-body--line-height: 1.55;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.45;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.14em;
+
+  --radius-card: 1.5rem;
+  --radius-chip: 0.875rem;
+
+  --shadow-*: initial;
+  --shadow-soft: 0 12px 32px -14px rgb(27 33 64 / 0.3), 0 2px 6px -2px rgb(27 33 64 / 0.08);
+  --shadow-float: 0 28px 60px -24px rgb(27 33 64 / 0.42), 0 8px 18px -10px rgb(27 33 64 / 0.18);
+  --shadow-stamp: 0 1px 2px rgb(27 33 64 / 0.22), 0 4px 10px -4px rgb(27 33 64 / 0.24);
+  --shadow-button: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 10px 22px -12px rgb(27 33 64 / 0.6);
+
+  --ease-*: initial;
+  --ease-surface: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-sink: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-swell: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+:root {
+  /* Tamaños fluidos para móvil (360 → 430 px). Cormorant es de ojo pequeño: va algo más grande. */
+  --fs-display: clamp(2.875rem, 0.946rem + 8.571vw, 3.25rem);
+  --fs-title: clamp(2rem, 0.714rem + 5.714vw, 2.25rem);
+  --fs-letter: clamp(1.5rem, 0.857rem + 2.857vw, 1.625rem);
+  --fs-script: clamp(3rem, 0.429rem + 11.43vw, 3.5rem);
+  --fs-body: 1rem;
+
+  /* Duraciones (en sincronía con design/motion.ts). */
+  --duration-tap: 150ms;
+  --duration-exit: 320ms;
+  --duration-enter: 600ms;
+  --duration-tide: 1000ms;
+  --duration-ambient: 2400ms;
+
+  /* Composición. --horizon: altura de los tejados (arriba, cielo; abajo, ciudad). */
+  --gutter: 1.25rem;
+  --horizon: 60%;
+  --topbar: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fs-display: 3.75rem;
+    --fs-title: 2.6rem;
+    --fs-letter: 1.7rem;
+    --fs-script: 4.25rem;
+    --gutter: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --fs-display: 4.5rem;
+    --fs-title: 2.85rem;
+    --fs-letter: 1.8rem;
+    --fs-script: 5rem;
+    --fs-body: 1.0625rem;
+    --gutter: 2.5rem;
+    --horizon: 62%;
+    --topbar: 4.5rem;
+  }
+}

@@ -1,0 +1,590 @@
+/*
+ * Santa Clara persistente. Todo lo que se mueve en bucle usa solo transform y opacity
+ * (compositor: 60 fps aunque el hilo principal esté ocupado). Las horas del día son
+ * capas superpuestas que se cruzan por opacidad.
+ */
+
+.city {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  background: var(--color-haze);
+  --sun-y: -30vh;
+  --sun-o: 1;
+}
+
+.city[data-mood='morning'] {
+  --sun-y: -16vh;
+}
+.city[data-mood='sunset'] {
+  --sun-y: -1.5vh;
+}
+.city[data-mood='night'] {
+  --sun-y: 8vh;
+  --sun-o: 0;
+}
+
+.city[data-paused] *,
+.city[data-paused] *::before,
+.city[data-paused] *::after {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Cielo ---------- */
+
+.sky {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--duration-ambient) var(--ease-swell);
+}
+.city[data-mood='morning'] .sky--morning,
+.city[data-mood='day'] .sky--day,
+.city[data-mood='sunset'] .sky--sunset,
+.city[data-mood='night'] .sky--night {
+  opacity: 1;
+}
+.sky--morning {
+  background: linear-gradient(
+    180deg,
+    #9fb7de 0%,
+    #d3cde5 calc(var(--horizon) * 0.5),
+    #f3d6cf calc(var(--horizon) * 0.82),
+    #fbe5c9 var(--horizon)
+  );
+}
+.sky--day {
+  background: linear-gradient(
+    180deg,
+    #84b2e2 0%,
+    #b9d3ee calc(var(--horizon) * 0.5),
+    #e6e7ef calc(var(--horizon) * 0.84),
+    #f5ead9 var(--horizon)
+  );
+}
+.sky--sunset {
+  background: linear-gradient(
+    180deg,
+    #2c3566 0%,
+    #5d4f86 calc(var(--horizon) * 0.32),
+    #b47f9f calc(var(--horizon) * 0.6),
+    #ea9e87 calc(var(--horizon) * 0.82),
+    #f7c98f var(--horizon)
+  );
+}
+.sky--night {
+  background: linear-gradient(
+    180deg,
+    #0b1029 0%,
+    #161b3f calc(var(--horizon) * 0.5),
+    #2a2a57 calc(var(--horizon) * 0.88),
+    #3d3768 var(--horizon)
+  );
+}
+
+.sun {
+  position: absolute;
+  left: 70%;
+  top: var(--horizon);
+}
+.sun__body {
+  position: absolute;
+  left: -120px;
+  top: -120px;
+  width: 240px;
+  height: 240px;
+  opacity: var(--sun-o);
+  transform: translate3d(0, var(--sun-y), 0);
+  transition:
+    transform var(--duration-ambient) var(--ease-swell),
+    opacity var(--duration-ambient) var(--ease-swell);
+}
+.sun__halo,
+.sun__warm {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+.sun__halo {
+  background: radial-gradient(circle, rgb(255 251 240 / 0.6) 0%, rgb(255 251 240 / 0.2) 34%, rgb(255 251 240 / 0) 68%);
+}
+.sun__warm {
+  background: radial-gradient(circle, rgb(255 196 140 / 0.8) 0%, rgb(250 160 130 / 0.3) 32%, rgb(250 160 130 / 0) 70%);
+  opacity: 0;
+  transition: opacity var(--duration-ambient) var(--ease-swell);
+}
+.city[data-mood='sunset'] .sun__warm,
+.city[data-mood='morning'] .sun__warm {
+  opacity: 1;
+}
+.city[data-mood='morning'] .sun__warm {
+  opacity: 0.5;
+}
+.sun__disc {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, #fffdf6 0 55%, #ffeccc 76%, rgb(255 236 204 / 0) 100%);
+}
+
+.moon {
+  position: absolute;
+  left: 82%;
+  /* Por debajo de los títulos: así nunca queda detrás del texto. */
+  top: calc(var(--horizon) * 0.4);
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  color: #f7f1e4;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    transform var(--duration-ambient) var(--ease-swell),
+    opacity var(--duration-ambient) var(--ease-swell);
+}
+.city[data-mood='night'] .moon {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.moon__halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 236 200 / 0.28) 0%, rgb(255 236 200 / 0.08) 40%, transparent 70%);
+}
+.moon__icon {
+  --moon-lit: #f7f1e4;
+  --moon-shadow: rgb(247 241 228 / 0.12);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+}
+
+.stars {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--horizon);
+  animation: city-fade-in var(--duration-ambient) var(--ease-swell) both;
+}
+.stars[data-leaving] {
+  animation-name: city-fade-out;
+}
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fbf6ec;
+  box-shadow: 0 0 4px rgb(251 246 236 / 0.7);
+  animation: star-twinkle 3s var(--ease-swell) infinite alternate;
+}
+
+/* Nubes: tres tonos que se cruzan (blanco de día, rosa al atardecer, casi nada de noche). */
+.clouds {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--horizon);
+}
+.cloud {
+  position: absolute;
+  left: 0;
+  width: 220px;
+  height: 80px;
+  animation: cloud-drift 180s linear infinite;
+}
+.cloud__shape {
+  position: absolute;
+  inset: 0;
+}
+.cloud__tone {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--duration-ambient) var(--ease-swell);
+  --c: 255 255 255;
+  background:
+    radial-gradient(ellipse 34% 46% at 32% 62%, rgb(var(--c) / 0.85), rgb(var(--c) / 0) 70%),
+    radial-gradient(ellipse 30% 52% at 54% 46%, rgb(var(--c) / 0.9), rgb(var(--c) / 0) 70%),
+    radial-gradient(ellipse 30% 40% at 74% 64%, rgb(var(--c) / 0.8), rgb(var(--c) / 0) 70%);
+}
+.cloud__tone--dusk {
+  --c: 246 178 170;
+}
+.cloud__tone--night {
+  --c: 120 110 170;
+}
+.city[data-mood='morning'] .cloud__tone--day {
+  opacity: 0.75;
+}
+.city[data-mood='day'] .cloud__tone--day {
+  opacity: 0.85;
+}
+.city[data-mood='sunset'] .cloud__tone--dusk {
+  opacity: 0.85;
+}
+.city[data-mood='night'] .cloud__tone--night {
+  opacity: 0.22;
+}
+
+/* Bandada: cruza de vez en cuando (la animación tiene una pausa larga al final). */
+.birds {
+  position: absolute;
+  left: 0;
+  top: calc(var(--horizon) * 0.6);
+  color: #4c4566;
+  opacity: 0;
+  animation: birds-cross 42s linear infinite;
+  animation-delay: -8s;
+  transition: color var(--duration-ambient) var(--ease-swell);
+}
+.city[data-mood='sunset'] .birds {
+  color: #3b2f52;
+}
+.city[data-mood='night'] .birds {
+  visibility: hidden;
+}
+.bird {
+  position: absolute;
+}
+.bird > svg {
+  display: block;
+  transform-origin: 50% 70%;
+  animation: bird-flap 0.42s var(--ease-swell) infinite alternate;
+  animation-delay: inherit;
+}
+
+/* ---------- La ciudad: capas y tonos ---------- */
+
+.city-depth {
+  position: absolute;
+  inset: 0;
+}
+.city-layer {
+  position: absolute;
+  top: 0;
+  left: -40px;
+  overflow: visible;
+}
+/*
+ * El tono de día queda siempre debajo; el del crepúsculo y el de la noche se funden encima.
+ * Al terminar de irse, `visibility: hidden` evita pintarlos (no cuestan nada).
+ */
+.tone {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-ambient) var(--ease-swell),
+    visibility 0s linear var(--duration-ambient);
+}
+.tone--day,
+.city[data-mood='sunset'] .tone--dusk,
+.city[data-mood='night'] .tone--dusk,
+.city[data-mood='night'] .tone--night {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--duration-ambient) var(--ease-swell),
+    visibility 0s;
+}
+
+/* Las palmas reales se mecen con la brisa (más o menos según `--sway`). */
+.palm-crown {
+  animation: palm-sway 6.5s var(--ease-swell) infinite alternate;
+}
+
+.lamp-glows {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--duration-ambient) var(--ease-swell);
+}
+.city[data-mood='sunset'] .lamp-glows {
+  opacity: 0.85;
+}
+.city[data-mood='night'] .lamp-glows {
+  opacity: 1;
+}
+.lamp-glow {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  margin: -35px 0 0 -35px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 214 140 / 0.75) 0%, rgb(255 200 120 / 0.28) 32%, rgb(255 200 120 / 0) 70%);
+  animation: lamp-breathe 3.6s var(--ease-swell) infinite alternate;
+}
+.glorieta-glow {
+  position: absolute;
+  height: 70px;
+  transform: translate(-50%, -35%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 210 140 / 0.42), rgb(255 210 140 / 0));
+}
+
+/* ---------- Lucecitas, pétalos y palomas (pool de efectos) ---------- */
+
+.lights {
+  position: absolute;
+  inset: 0;
+}
+.firefly,
+.petal,
+.mini-dove {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+.firefly {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6d6 0 30%, rgb(255 213 138 / 0.9) 45%, rgb(255 213 138 / 0) 72%);
+  box-shadow: 0 0 10px 3px rgb(255 213 138 / 0.45);
+}
+.petal {
+  width: 12px;
+  height: 10px;
+  margin: -5px 0 0 -6px;
+  border-radius: 60% 40% 55% 45% / 55% 60% 40% 45%;
+  background: radial-gradient(circle at 35% 35%, #f19ac0, #c2477a 70%);
+}
+.petal--light {
+  background: radial-gradient(circle at 35% 35%, #ffd0e2, #e68fb2 70%);
+}
+.mini-dove {
+  width: 30px;
+  height: 22px;
+  margin: -11px 0 0 -15px;
+  filter: drop-shadow(0 1px 1px rgb(27 33 64 / 0.25));
+}
+.mini-dove svg {
+  display: block;
+}
+.mini-dove__wings {
+  transform-origin: 15px 12px;
+  animation: mini-dove-flap 0.28s var(--ease-swell) infinite alternate;
+}
+
+/* ---------- Animaciones ---------- */
+
+@keyframes star-twinkle {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes city-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes city-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes cloud-drift {
+  from {
+    transform: translate3d(-260px, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(100vw + 40px), 0, 0);
+  }
+}
+@keyframes birds-cross {
+  0% {
+    opacity: 0;
+    transform: translate3d(-90px, 0, 0);
+  }
+  3% {
+    opacity: 1;
+  }
+  20% {
+    transform: translate3d(calc(55vw), -14px, 0);
+  }
+  37% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0;
+    transform: translate3d(calc(100vw + 120px), -30px, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100vw + 120px), -30px, 0);
+  }
+}
+@keyframes bird-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.35);
+  }
+}
+@keyframes palm-sway {
+  from {
+    transform: rotate(calc(-1.6deg * var(--sway, 1)));
+  }
+  to {
+    transform: rotate(calc(1.8deg * var(--sway, 1)));
+  }
+}
+@keyframes lamp-breathe {
+  from {
+    opacity: 0.82;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes mini-dove-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(-0.6);
+  }
+}
+
+/* Movimiento reducido: la ciudad queda quieta; los cambios de hora siguen siendo fundidos. */
+@media (prefers-reduced-motion: reduce) {
+  .city *,
+  .city *::before,
+  .city *::after {
+    animation: none !important;
+  }
+  .sun__body,
+  .moon {
+    transition-property: opacity;
+  }
+  .star {
+    opacity: 0.8;
+  }
+  .stars[data-leaving] {
+    opacity: 0;
+  }
+  .birds {
+    display: none;
+  }
+}
+
+/* ---------- La paloma ---------- */
+
+.dove-actor {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+.dove-actor__hop,
+.dove-actor__face {
+  width: 100%;
+  height: 100%;
+}
+.dove-actor__face {
+  transform-origin: 44% 80%;
+}
+.dove {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 2px 3px rgb(27 33 64 / 0.22));
+}
+.dove__breath {
+  transform-origin: 62px 88px;
+  animation: dove-breathe 3.2s var(--ease-swell) infinite alternate;
+}
+.dove__head {
+  transform-origin: 44px 42px;
+  animation: dove-look 7.5s var(--ease-swell) infinite;
+}
+.dove__eye {
+  transform-origin: 37px 31px;
+  animation: dove-blink 5.5s linear infinite;
+}
+.dove__flight {
+  opacity: 0;
+}
+.dove__flight--near {
+  transform-origin: 0 46px;
+}
+.dove__flight--far {
+  transform-origin: 0 45px;
+}
+.dove[data-flying] .dove__flight {
+  opacity: 1;
+  animation: dove-flap 0.3s var(--ease-swell) infinite alternate;
+}
+.dove[data-flying] .dove__flight--far {
+  animation-delay: -0.07s;
+}
+.dove[data-flying] .dove__folded,
+.dove[data-flying] .dove__legs {
+  opacity: 0;
+}
+.dove[data-flying] .dove__head,
+.dove[data-flying] .dove__breath {
+  animation: none;
+}
+
+@keyframes dove-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(-0.6);
+  }
+}
+@keyframes dove-breathe {
+  from {
+    transform: scale(1, 1);
+  }
+  to {
+    transform: scale(1.012, 1.03);
+  }
+}
+@keyframes dove-look {
+  0%,
+  30% {
+    transform: rotate(0deg);
+  }
+  36%,
+  52% {
+    transform: rotate(-8deg);
+  }
+  58%,
+  72% {
+    transform: rotate(5deg) translateY(1px);
+  }
+  78%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+@keyframes dove-blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dove *,
+  .dove {
+    animation: none !important;
+  }
+}

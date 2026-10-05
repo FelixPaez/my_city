@@ -1,0 +1,312 @@
+@layer components {
+  /* ---------- Superficies ---------- */
+
+  /* Papel: carta y tarjetas. Opaco a propósito (un blur grande sobre la ciudad animada cuesta fps). */
+  .paper {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(180deg, #fbf7ef 0%, var(--color-paper) 55%, #efe6d6 100%);
+  }
+  .paper::before,
+  .paper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  /* Grano de papel antiguo, teñido de sepia (se rasteriza una vez y se repite). */
+  .paper::before {
+    z-index: -1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .3 0 0 0 0 .2 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .paper::after {
+    box-shadow:
+      inset 0 0 0 1px rgb(42 47 79 / 0.07),
+      inset 0 1px 0 rgb(255 255 255 / 0.9);
+  }
+
+  /* Cristal discreto: solo para piezas pequeñas (chips, botones secundarios, paneles). */
+  .glass {
+    position: relative;
+    background: rgb(255 255 255 / 0.82);
+  }
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .glass {
+      background: rgb(255 255 255 / 0.55);
+      -webkit-backdrop-filter: blur(14px) saturate(1.25);
+      backdrop-filter: blur(14px) saturate(1.25);
+    }
+  }
+  .glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.65);
+  }
+
+  /*
+   * Pastilla de papel para lo poco que va sobre la ciudad (pistas, enlaces, avisos):
+   * los tejados y el balcón tienen mucho detalle, así que sin ella el texto no se leería bien.
+   * Sin desenfoque a propósito: las palmas se mueven debajo y en móviles modestos costaría.
+   */
+  .pill {
+    border-radius: 999px;
+    background: rgb(251 246 236 / 0.86);
+    color: var(--color-indigo);
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.7),
+      0 8px 20px -12px rgb(27 33 64 / 0.45);
+    transition:
+      background-color var(--duration-ambient) var(--ease-swell),
+      color var(--duration-ambient) var(--ease-swell);
+  }
+  :root[data-mood='sunset'] .pill,
+  :root[data-mood='night'] .pill {
+    background: rgb(11 16 41 / 0.62);
+    color: var(--color-cream);
+    box-shadow:
+      inset 0 0 0 1px rgb(243 220 211 / 0.18),
+      0 8px 20px -12px rgb(0 0 0 / 0.5);
+  }
+
+  /* Velo detrás del texto que va sobre el cielo: garantiza el contraste (≥ 5:1). */
+  .veil {
+    position: relative;
+    isolation: isolate;
+  }
+  .veil::before {
+    content: '';
+    position: absolute;
+    inset: -1.5rem -2rem;
+    z-index: -1;
+    border-radius: 3rem;
+    background: radial-gradient(closest-side, var(--veil), transparent);
+    pointer-events: none;
+  }
+
+  /* ---------- Revelado de texto ---------- */
+
+  /* Cada palabra sube desde su máscara; el relleno evita recortar tildes y descendentes. */
+  .reveal-word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding: 0.1em 0.04em 0.16em;
+    margin: -0.1em -0.04em -0.16em;
+  }
+
+  /* ---------- Persiana entre pantallas ---------- */
+
+  /* Tablillas de una persiana colonial: giran (escala vertical) para cerrarse y abrirse. */
+  .shutters {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-rows: repeat(11, 1fr);
+    pointer-events: none;
+  }
+  .shutter-slat {
+    display: block;
+    transform-origin: 50% 50%;
+  }
+  .shutter-slat > span {
+    display: block;
+    height: calc(100% + 1px);
+    background: linear-gradient(180deg, #8d9dc0 0%, #7486ae 55%, #5f6f99 100%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.35),
+      inset 0 -2px 0 rgb(27 33 64 / 0.28);
+  }
+
+  /* ---------- Barra superior: la fila de farolas ---------- */
+
+  .topbar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    height: calc(var(--topbar) + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) calc(var(--gutter) + env(safe-area-inset-right)) 0
+      calc(var(--gutter) + env(safe-area-inset-left));
+    pointer-events: none;
+  }
+  .topbar > * {
+    pointer-events: auto;
+  }
+  /* Velo del color del cielo: lo que se desplaza por debajo se desvanece, no choca con el horizonte. */
+  .topbar::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -1.5rem;
+    z-index: -1;
+    background-color: var(--sky-top);
+    -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent);
+    mask-image: linear-gradient(180deg, #000 45%, transparent);
+    transition: background-color var(--duration-ambient) var(--ease-swell);
+  }
+  .topbar__progress {
+    pointer-events: none;
+  }
+
+  .lamps {
+    position: relative;
+    height: 42px;
+  }
+  /* El cable de las farolas: una línea fina que cruza de punta a punta. */
+  .lamps__wire {
+    position: absolute;
+    inset: 39px 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, currentColor 6%, currentColor 94%, transparent);
+    opacity: 0.3;
+  }
+  .lamps__lamp {
+    position: absolute;
+    top: 10px;
+    width: 14px;
+    height: 30px;
+    margin-left: -7px;
+    opacity: 0.45;
+    transition: opacity var(--duration-enter) var(--ease-surface);
+  }
+  .lamps__lamp > svg {
+    display: block;
+  }
+  .lamps__glass {
+    fill: transparent;
+    transition: fill var(--duration-enter) var(--ease-surface);
+  }
+  .lamps__glow {
+    fill: var(--color-lamp);
+    opacity: 0;
+    filter: blur(3px);
+    transition: opacity var(--duration-enter) var(--ease-surface);
+  }
+  .lamps__lamp[data-lit] {
+    opacity: 1;
+  }
+  .lamps__lamp[data-lit] .lamps__glass {
+    fill: var(--color-lamp);
+  }
+  .lamps__lamp[data-lit] .lamps__glow {
+    opacity: 0.45;
+  }
+  .lamps__lamp[data-current] .lamps__glow {
+    animation: lamp-pulse 2.4s var(--ease-swell) infinite alternate;
+  }
+  .lamps__label {
+    position: absolute;
+    top: 44px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    opacity: 0.6;
+  }
+  .lamps__label[data-current] {
+    opacity: 1;
+  }
+  .lamps__track {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 14px;
+  }
+  /* La palomita, posada encima de la farola encendida. */
+  .lamps__dove {
+    position: absolute;
+    left: -13px;
+    bottom: -8px;
+    width: 26px;
+    height: 20px;
+  }
+  .lamps__hop > svg {
+    display: block;
+  }
+  .lamps__glorieta {
+    position: absolute;
+    right: -10px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+  }
+  .lamps__glorieta > svg {
+    display: block;
+  }
+  .lamps__halo {
+    fill: var(--color-lamp);
+    opacity: 0;
+    filter: blur(4px);
+    transition: opacity var(--duration-enter) var(--ease-surface);
+  }
+  .lamps__glorieta[data-lit] .lamps__halo {
+    opacity: 0.6;
+    animation: lamp-pulse 2.6s var(--ease-swell) infinite alternate;
+  }
+
+  @media (min-width: 1024px) {
+    .topbar {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 720px) minmax(0, 1fr);
+    }
+    .topbar__progress {
+      grid-column: 2;
+    }
+    .topbar__actions {
+      grid-column: 3;
+      justify-self: end;
+    }
+    .lamps {
+      height: 62px;
+    }
+  }
+
+  /* ---------- Cinta de borrador ---------- */
+
+  .draft-ribbon {
+    position: fixed;
+    z-index: 60;
+    right: -48px;
+    bottom: calc(26px + env(safe-area-inset-bottom));
+    width: 190px;
+    padding: 5px 0;
+    transform: rotate(-45deg);
+    background: var(--color-lamp);
+    color: var(--color-night);
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    pointer-events: none;
+  }
+
+  /* ---------- Pantallas ---------- */
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: calc(var(--topbar) + env(safe-area-inset-top) + 0.5rem) calc(var(--gutter) + env(safe-area-inset-right))
+      calc(env(safe-area-inset-bottom) + 1.5rem) calc(var(--gutter) + env(safe-area-inset-left));
+  }
+}
+
+@keyframes lamp-pulse {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamps__lamp[data-current] .lamps__glow,
+  .lamps__glorieta[data-lit] .lamps__halo {
+    animation: none;
+  }
+}

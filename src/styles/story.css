@@ -1,0 +1,491 @@
+/* La historia: intro, paloma, sobre, carta desplegada, tinta invisible y gestos. */
+
+@layer components {
+  .screen-fixed {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  /* ---------- Intro ---------- */
+
+  .intro__text {
+    position: absolute;
+    top: calc(var(--topbar) + env(safe-area-inset-top) + 9vh);
+    left: calc(var(--gutter) + env(safe-area-inset-left));
+    right: calc(var(--gutter) + env(safe-area-inset-right));
+    max-width: 34rem;
+  }
+  .intro__title {
+    font-weight: 400;
+    padding-right: 0.15em;
+  }
+  .intro__subtitle {
+    margin-top: 0.5rem;
+    max-width: 22rem;
+  }
+  /* En móvil la indicación va abajo, centrada; en escritorio, bajo el título. */
+  .intro__hint {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(env(safe-area-inset-bottom) + 1.75rem);
+    display: flex;
+    justify-content: center;
+  }
+  .intro__dove {
+    position: absolute;
+    border-radius: 45%;
+    background: transparent;
+  }
+  @media (min-width: 1024px) {
+    .intro__text {
+      top: 21vh;
+      left: max(calc(var(--gutter) + 2rem), calc((100vw - 72rem) / 2));
+      right: auto;
+      width: 34rem;
+    }
+    .intro__hint {
+      position: static;
+      margin: 2rem 0 0 -1rem;
+      justify-content: flex-start;
+    }
+  }
+
+  /* ---------- Indicaciones ---------- */
+
+  .hint-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hint-button__icon {
+    display: grid;
+    place-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .hint-button--swipe .hint-button__icon {
+    animation: hint-rise 1.8s var(--ease-swell) infinite;
+  }
+  .pulse-dot {
+    position: relative;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .pulse-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    animation: pulse-ring 2.4s var(--ease-surface) infinite;
+  }
+
+  /* ---------- Sobre ---------- */
+
+  /* El sobre en reposo, centrado sobre la carta; vuela desde el pico con transform. */
+  .envelope-flight {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: min(20rem, 80vw);
+    margin-left: calc(min(20rem, 80vw) / -2);
+    margin-top: calc(min(20rem, 80vw) * -0.735);
+    transform-origin: 50% 67.57%;
+    pointer-events: none;
+    filter: drop-shadow(0 14px 18px rgb(27 33 64 / 0.28));
+  }
+  .envelope {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .envelope__name {
+    font-family: var(--font-script);
+    font-size: 25px;
+    fill: var(--color-indigo);
+  }
+
+  /* ---------- Carta ---------- */
+
+  .letter-wrap {
+    position: absolute;
+    top: calc(var(--topbar) + env(safe-area-inset-top) + 1.25rem);
+    bottom: calc(env(safe-area-inset-bottom) + 1.75rem);
+    left: calc(var(--gutter) + env(safe-area-inset-left));
+    right: calc(var(--gutter) + env(safe-area-inset-right));
+    display: flex;
+    justify-content: center;
+  }
+  .letter {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+  }
+  .letter__shadow,
+  .letter__paper-outer,
+  .letter__paper {
+    position: absolute;
+    inset: 0;
+    border-radius: 0.75rem;
+  }
+  .letter__shadow {
+    box-shadow: var(--shadow-float);
+    transform-origin: 50% 0;
+  }
+  .letter__paper-outer {
+    overflow: hidden;
+  }
+  /* El doblez que baja mientras la carta se despliega (su sombra marca el pliegue). */
+  .letter__fold {
+    position: absolute;
+    top: -14px;
+    left: 0;
+    right: 0;
+    height: 28px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgb(27 33 64 / 0) 0%, rgb(27 33 64 / 0.16) 48%, rgb(255 252 244 / 0.9) 52%, rgb(27 33 64 / 0) 100%);
+  }
+  /* Los dobleces que quedan marcados en el papel, como en una carta de verdad. */
+  .letter__creases {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, transparent calc(33.3% - 1px), rgb(42 47 79 / 0.07) calc(33.3% - 1px), rgb(255 255 255 / 0.65) 33.3%, transparent calc(33.3% + 2px)),
+      linear-gradient(180deg, transparent calc(66.6% - 1px), rgb(42 47 79 / 0.07) calc(66.6% - 1px), rgb(255 255 255 / 0.65) 66.6%, transparent calc(66.6% + 2px));
+  }
+
+  .letter__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 2.75rem 1.6rem 2.1rem;
+  }
+  .letter__body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .letter__body.is-tappable {
+    cursor: pointer;
+  }
+  .letter__body.is-swipeable {
+    touch-action: none;
+    cursor: grab;
+  }
+  .letter__body.is-swipeable:active {
+    cursor: grabbing;
+  }
+  .letter__stack {
+    display: grid;
+  }
+  .letter__stack > * {
+    grid-area: 1 / 1;
+  }
+  /* El cuerpo en cursiva de pluma; el saludo y la firma, a mano. */
+  .letter__words {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-letter);
+    line-height: var(--text-letter--line-height);
+    color: var(--color-indigo);
+    text-wrap: pretty;
+  }
+  .letter__greeting,
+  .letter__signature {
+    font-family: var(--font-script);
+    font-size: calc(var(--text-letter) * 1.25);
+    line-height: 1.2;
+    color: var(--color-wine);
+  }
+  .letter__greeting {
+    margin-bottom: 0.6rem;
+  }
+  .letter__question {
+    font-family: var(--font-serif);
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    letter-spacing: var(--text-title--letter-spacing);
+    font-weight: 600;
+    color: var(--color-indigo);
+    text-wrap: balance;
+  }
+  .letter__signature {
+    margin-top: 1.25rem;
+    text-align: right;
+  }
+  /* Tinta invisible: el rastro casi no se ve (limón seco); el calor la vuelve sepia. */
+  .letter__text--ghost .letter__words,
+  .letter__text--ghost .letter__question {
+    color: #b59a6a;
+  }
+  .letter__text--ink .letter__words,
+  .letter__text--ink .letter__question {
+    color: #5a3a26;
+  }
+  .letter__ink-note {
+    align-self: end;
+    margin-bottom: -2.25rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-dusk);
+    text-align: center;
+  }
+  .ink-warmth {
+    position: absolute;
+    inset: -20% -15%;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+  }
+  .ink-warmth__glow {
+    width: 110%;
+    aspect-ratio: 1.3;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 196 120 / 0.55), rgb(255 214 150 / 0.28) 45%, rgb(255 214 150 / 0) 100%);
+  }
+  .letter__footer {
+    min-height: 7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-ink-soft);
+  }
+  .letter__hold {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .letter__hint-text {
+    max-width: 11rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  @media (min-width: 768px) {
+    .letter {
+      max-width: 34rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .letter-wrap {
+      top: calc(var(--topbar) + 2.5rem);
+      bottom: 3rem;
+      align-items: center;
+    }
+    .letter {
+      max-width: 38rem;
+      height: min(100%, 44rem);
+    }
+    .letter__content {
+      padding: 4rem 4rem 2.75rem;
+    }
+  }
+
+  .letter__fade {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* ---------- La pregunta ---------- */
+
+  .question__actions {
+    gap: 1.75rem;
+  }
+  .question__yes {
+    position: relative;
+  }
+  .question__yes-button {
+    min-width: 7rem;
+  }
+  .question__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    box-shadow:
+      0 0 0 2px rgb(255 213 138 / 0.9),
+      0 0 24px 6px rgb(255 213 138 / 0.45);
+    pointer-events: none;
+  }
+  .runaway-no__slot {
+    display: inline-flex;
+  }
+  .runaway-no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    padding: 0 1.6rem;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--color-indigo);
+    background: rgb(255 255 255 / 0.85);
+    box-shadow:
+      inset 0 0 0 1px rgb(42 47 79 / 0.14),
+      var(--shadow-soft);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .runaway-no--ghost {
+    visibility: hidden;
+  }
+  .runaway-no--floating {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 45;
+  }
+  .runaway-no.is-still {
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  /* ---------- Celebración y mensaje final ---------- */
+
+  .celebration,
+  .closing {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .celebration__text,
+  .closing__text {
+    margin-top: calc(var(--topbar) + env(safe-area-inset-top) + 9vh);
+    padding: 0 calc(var(--gutter) + env(safe-area-inset-left));
+    max-width: 34rem;
+    text-align: center;
+  }
+  .celebration__subtitle,
+  .closing__message {
+    margin-top: 0.85rem;
+  }
+  .closing {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .closing__text h2 {
+    text-wrap: balance;
+  }
+  @media (min-width: 1024px) {
+    .celebration__text,
+    .closing__text {
+      margin-top: 20vh;
+      max-width: 40rem;
+    }
+    /* «Nos vemos el martes / 6 de octubre»: dos renglones, no tres. */
+    .closing__text {
+      max-width: 52rem;
+    }
+  }
+
+  /* ---------- Mantener presionado ---------- */
+
+  .hold {
+    position: relative;
+    flex: none;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    color: var(--color-indigo);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .hold__track {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 3.5px rgb(42 47 79 / 0.12);
+  }
+  .hold__half {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    overflow: hidden;
+  }
+  .hold__half--right {
+    right: 0;
+  }
+  .hold__half--left {
+    left: 0;
+  }
+  .hold__arc {
+    position: absolute;
+    top: 0;
+    width: 76px;
+    height: 76px;
+  }
+  .hold__half--right .hold__arc {
+    right: 0;
+  }
+  .hold__half--left .hold__arc {
+    left: 0;
+  }
+  .hold__arc > svg {
+    display: block;
+  }
+  .hold__core {
+    position: absolute;
+    inset: 9px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffffff, var(--color-linen) 75%);
+    box-shadow:
+      var(--shadow-stamp),
+      inset 0 0 0 1px rgb(42 47 79 / 0.08);
+  }
+}
+
+@keyframes pulse-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+@keyframes hint-rise {
+  0%,
+  100% {
+    transform: translate3d(0, 2px, 0);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot::after,
+  .hint-button--swipe .hint-button__icon {
+    animation: none;
+  }
+}
