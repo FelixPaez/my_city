@@ -10,6 +10,7 @@ import { useNow } from '../../hooks/useNow.ts';
 import { availableTimes, dayBlocked } from '../../lib/dates.ts';
 import { useFlow } from '../../state/flowContext.ts';
 import { Button } from '../../ui/Button.tsx';
+import { ExternalLink } from '../../ui/ExternalLink.tsx';
 import { PhotoCard } from '../../ui/PhotoCard.tsx';
 import { RevealText } from '../../ui/RevealText.tsx';
 import { WaxSealMark } from '../../ui/WaxSeal.tsx';
@@ -176,6 +177,7 @@ function PlaceCard({ place, index, active, selected, onChoose, onFocusCard }: Ca
               description={place.description}
               badge={place.badge}
               seal={<SealDrop placed={selected} />}
+              className={place.link ? 'photo-card--link' : ''}
             />
           </m.div>
         </m.div>
@@ -198,6 +200,17 @@ function PlaceCard({ place, index, active, selected, onChoose, onFocusCard }: Ca
           </m.div>
         )}
       </m.div>
+      {/* Fuera de la foto (que es la opción que se elige): tocar el enlace no elige el plan. */}
+      {place.link && revealed && (
+        <ExternalLink
+          href={place.link.url}
+          label={`${place.link.label}: ${place.name} (se abre en otra pestaña)`}
+          className="place-card__link"
+          onFocus={onFocusCard}
+        >
+          {place.link.label}
+        </ExternalLink>
+      )}
     </div>
   );
 }

@@ -7,12 +7,16 @@ import { ease, transition } from '../../design/motion.ts';
 import { usePointerFine } from '../../hooks/useMediaQuery.ts';
 import { useSwipeUp } from '../../hooks/useSwipeUp.ts';
 import { fill } from '../../lib/format.ts';
+import { ramp } from '../../lib/ramp.ts';
 import { useFlow } from '../../state/flowContext.ts';
 import { HintButton } from '../../ui/HintButton.tsx';
 import { HoldButton } from '../../ui/HoldButton.tsx';
 import { RevealText } from '../../ui/RevealText.tsx';
-import { InkWarmth } from './InvisibleInk.tsx';
+import { CandleIcon, InkText, InkWarmth } from './InvisibleInk.tsx';
 import { QuestionPage } from './QuestionPage.tsx';
+
+/** Segundos que hay que mantener la vela para revelar la tinta invisible. */
+const INK_HOLD = 2.1;
 
 type How = 'tap' | 'swipe' | 'ink' | 'ink-held';
 
@@ -82,16 +86,17 @@ function LetterPage({ page, revealed, waitForRelease, onNext }: LetterPageProps)
   const bodyRef = useRef<HTMLDivElement>(null);
   const y = useMotionValue(0);
   const fade = useMotionValue(1);
+  /** 0 → 1: el calor de la vela mientras ella mantiene presionado (vuelve a 0 si suelta). */
   const hold = useMotionValue(0);
-  /** 0 → 1: el texto leído se va y asoma el rastro de la tinta invisible. */
-  const ink = useMotionValue(0);
+  /** 0 → 1: aparece el aviso de que lo que sigue va en tinta invisible. */
+  const noteIn = useMotionValue(0);
+  /** Si la página llegó revelando la tinta, el papel sigue caliente un momento y se enfría. */
+  const cooling = useMotionValue(revealed ? 1 : 0);
 
   const swipeFade = useTransform(y, [-170, 0], [0, 1]);
-  const textOpacity = useTransform([fade, swipeFade, ink], ([f, s, g]: number[]) => f * s * (1 - g));
-  // La tinta de limón casi no se ve… hasta que el calor la oscurece.
-  const ghostOpacity = useTransform([ink, hold], ([g, h]: number[]) => g * (1 - h) * 0.2);
-  const nextOpacity = useTransform([ink, hold], ([g, h]: number[]) => g * h);
-  const noteOpacity = useTransform([ink, hold], ([g, h]: number[]) => g * (1 - h * 2.2));
+  // Al calentar el papel, lo ya leído se retira para dejar sitio a la tinta invisible.
+  const textOpacity = useTransform([fade, swipeFade, hold], ([f, s, h]: number[]) => f * s * (1 - ramp(h, 0.02, 0.3)));
+  const noteOpacity = useTransform([noteIn, hold], ([n, h]: number[]) => n * (1 - ramp(h, 0, 0.12)));
 
   const swipe = useSwipeUp({
     y,
@@ -118,18 +123,19 @@ function LetterPage({ page, revealed, waitForRelease, onNext }: LetterPageProps)
     else if (advance === 'tap') leaveByTap();
   };
 
-  // La tinta invisible asoma sola cuando ya hubo tiempo de leer (o al primer toque, lo que ocurra antes).
+  useEffect(() => {
+    if (!revealed) return;
+    const controls = animate(cooling, 0, { duration: 2, ease: ease.swell, delay: 0.3 });
+    return () => controls.stop();
+  }, [revealed, cooling]);
+
+  // Terminada la página, una nota avisa de la tinta invisible. Lo escrito con ella no se ve
+  // en absoluto hasta que ella calienta el papel.
   useEffect(() => {
     if (!ready || advance !== 'hold') return;
-    const words = text.split(/\s+/).length;
-    const id = window.setTimeout(
-      () => {
-        if (ink.get() === 0) animate(ink, 1, { duration: 1.6, ease: ease.swell });
-      },
-      (1.5 + words * 0.15) * 1000,
-    );
+    const id = window.setTimeout(() => animate(noteIn, 1, { duration: 0.9, ease: ease.swell }), 900);
     return () => window.clearTimeout(id);
-  }, [ready, advance, text, ink]);
+  }, [ready, advance, noteIn]);
 
   // Si no hay gesto, el papel hace un amago hacia arriba como pista.
   useEffect(() => {
@@ -151,13 +157,15 @@ function LetterPage({ page, revealed, waitForRelease, onNext }: LetterPageProps)
         {...(advance === 'swipe' ? swipe.handlers : {})}
       >
         <div className="letter__stack" aria-live="polite">
+          {revealed && <InkWarmth progress={cooling} />}
           <m.div className="letter__text" style={{ y, opacity: textOpacity }}>
             {page === 0 && (
               <RevealText text={fill(config.letter.greeting)} className="letter__greeting" complete={complete} />
             )}
             <RevealText
               text={fill(text)}
-              className="letter__words"
+              // Si esta página se reveló con calor, conserva el color de la tinta de limón tostada.
+              className={revealed ? 'letter__words letter__words--ink' : 'letter__words'}
               delay={page === 0 ? 0.55 : 0.1}
               complete={complete}
               onDone={() => setComplete(true)}
@@ -166,12 +174,11 @@ function LetterPage({ page, revealed, waitForRelease, onNext }: LetterPageProps)
           {advance === 'hold' && (
             <>
               <InkWarmth progress={hold} />
-              <m.div className="letter__text letter__text--ghost" style={{ opacity: ghostOpacity }} aria-hidden="true">
-                <p className={isLast ? 'letter__question' : 'letter__words'}>{fill(nextText)}</p>
-              </m.div>
-              <m.div className="letter__text letter__text--ink" style={{ opacity: nextOpacity }} aria-hidden="true">
-                <p className={isLast ? 'letter__question' : 'letter__words'}>{fill(nextText)}</p>
-              </m.div>
+              <InkText
+                text={fill(nextText)}
+                className={isLast ? 'letter__question letter__question--ink' : 'letter__words letter__words--ink'}
+                progress={hold}
+              />
               <m.p className="letter__ink-note" style={{ opacity: noteOpacity }}>
                 {config.letter.inkNote}
               </m.p>
@@ -197,10 +204,10 @@ function LetterPage({ page, revealed, waitForRelease, onNext }: LetterPageProps)
             <HoldButton
               label={hint}
               progress={hold}
-              icon={<CandleIcon />}
-              onPressStart={() => {
-                if (ink.get() < 1) animate(ink, 1, { duration: 0.45, ease: ease.surface });
-              }}
+              duration={INK_HOLD}
+              // Si suelta antes de tiempo, el papel se enfría despacio y la tinta se vuelve a esconder.
+              release={{ duration: 0.8, ease: ease.swell }}
+              icon={<CandleIcon progress={hold} />}
               onComplete={(pointerDown) => {
                 feedback('paper');
                 onNext(pointerDown ? 'ink-held' : 'ink');
@@ -216,16 +223,6 @@ function LetterPage({ page, revealed, waitForRelease, onNext }: LetterPageProps)
         )}
       </m.div>
     </div>
-  );
-}
-
-/** Una vela: el calor que revela la tinta invisible. */
-function CandleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 3.2c2 2.2 2.6 3.7 2.6 5a2.6 2.6 0 0 1-5.2 0c0-1.3.6-2.8 2.6-5z" fill="currentColor" fillOpacity="0.18" />
-      <path d="M12 10.6v2.2M8.6 13h6.8v7.4H8.6z" />
-    </svg>
   );
 }
 

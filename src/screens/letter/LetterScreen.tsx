@@ -310,7 +310,7 @@ export function LetterScreen() {
           className="envelope-flight"
           style={{ x: envX, y: envY, scale: envScale, rotate: envRotate, opacity: envOpacity }}
         >
-          <Envelope flap={flap} breakSeal={breakSeal} seal={seal} slide={slide} name={fill(config.intro.title)} />
+          <Envelope flap={flap} breakSeal={breakSeal} seal={seal} slide={slide} name={fill(config.letter.envelope)} />
         </m.div>
       </div>
       {showMessage && <ClosingMessage title={closing.title} message={closing.message} />}

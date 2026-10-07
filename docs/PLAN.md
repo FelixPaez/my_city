@@ -12,7 +12,10 @@ la solapa y la carta se despliega. Al final elige el plan, el día y la hora; la
 se sella y la paloma se la lleva volando. De fondo, la ciudad con el cielo real de Santa Clara.
 
 Decisiones del autor (octubre de 2026): idea «Carta por paloma», paleta «atardecer colonial» y el pasadía
-solo los sábados y domingos.
+solo los sábados y domingos. Después: la intro saluda («Holaaa Marcia, hay una paloma por ahí con una
+carta…») y su pista solo indica (la carta se abre tocando la paloma); la tinta invisible no se ve en
+absoluto hasta que ella aprieta, y aparece a medida que calienta el papel; se suma Don Isaac a los planes
+y los lugares con menú en El Yerro llevan su enlace.
 
 ## Flujo (el mismo de la botella)
 
@@ -54,12 +57,16 @@ DM Sans (interfaz). Nunca menos de 16 px en campos (iOS no hace zoom).
   curva solo con transform (FLIP). Coordina con la carta por `doveBus` (pico, llegada, entrega, ida).
 - **La carta** (`src/screens/letter/`): sobre con lacre que se rompe en dos mitades y solapa que se abre;
   la carta se despliega con un wipe de doble transform y la sombra del doblez, y conserva los dobleces
-  marcados. Gestos: tocar, mantener (tinta invisible que el calor revela) y deslizar.
+  marcados. Gestos: tocar, mantener y deslizar. Al mantener, una vela calienta el papel por detrás: la
+  luz lo atraviesa y tiembla, el papel se tuesta, y lo escrito en tinta invisible aparece palabra a
+  palabra del centro hacia afuera, primero dorado y luego sepia; si ella suelta, se enfría y se esconde.
 - **Transiciones**: una persiana colonial (`ShutterStage`) cuyas tablillas giran entre pantallas.
 - **Progreso**: una fila de farolas que se encienden; una palomita salta de una a otra y al final se
   ilumina la glorieta.
-- **Planes**: fotos de las de antes (borde ondulado con máscara CSS, viñeta), nombre escrito a mano y un
-  lacre que cae al elegir. Las sorpresas están boca abajo (cartulina con una «?» a mano).
+- **Planes**: D’Rolando, Heladería Pati, La Bodeguita del Medio, Don Isaac, un lugar sorpresa y un pasadía
+  sorpresa. Fotos de las de antes (borde ondulado con máscara CSS, viñeta), nombre escrito a mano y un
+  lacre que cae al elegir. Las sorpresas están boca abajo (cartulina con una «?» a mano). Al pie de la
+  foto, el enlace a su menú en El Yerro (fuera de la opción elegible: tocarlo no elige el plan).
 - **Fecha y hora**: hojitas de almanaque con la luna de cada noche y el arco del sol sobre la silueta de
   la ciudad (de 15 en 15 minutos; el cielo cambia mientras se arrastra).
 - **Resumen**: la foto con su lacre y un matasellos «CORREO DE PALOMAS · SANTA CLARA, CUBA».
@@ -82,4 +89,6 @@ DM Sans (interfaz). Nunca menos de 16 px en campos (iOS no hace zoom).
 |---|---|
 | Base técnica (copiada de la botella y adaptada) | ✅ |
 | Ciudad, paloma, sobre y carta, persianas, farolas, planes, almanaque, resumen, despedida | ✅ |
-| Contenido real: su nombre, tu nombre y número, la carta, fotos y franjas de cada lugar | ⏳ pendiente del autor |
+| Contenido real: nombres, número, la carta, fotos y enlaces de cada lugar | ✅ |
+| Franjas horarias propias de cada lugar (hoy todos de 12 a 12) | ⏳ si el autor las quiere |
+| Activar GitHub Pages en el repositorio (una sola vez) | ⏳ pendiente del autor |

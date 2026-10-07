@@ -163,6 +163,32 @@
     font-size: var(--text-small);
     color: var(--color-ink-soft);
   }
+  /* Hueco al pie de la foto para el enlace (va fuera de la foto, que es la opción elegible). */
+  .photo-card--link .photo-card__caption {
+    padding-bottom: 2.3rem;
+  }
+
+  /* Enlace a otra web (el menú del lugar): discreto, en tinta de lacre. */
+  .external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-wine);
+    text-decoration: underline;
+    text-decoration-color: rgb(126 35 51 / 0.35);
+    text-underline-offset: 3px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .external-link:hover {
+    text-decoration-color: currentColor;
+  }
+  .external-link > svg {
+    flex: none;
+  }
 
   /* ---------- Carrusel de fotos ---------- */
 
@@ -187,6 +213,7 @@
     display: none;
   }
   .place-card {
+    position: relative;
     flex: 0 0 var(--card-w);
     scroll-snap-align: center;
     perspective: 1400px;
@@ -202,6 +229,13 @@
   .place-card[data-active] {
     opacity: 1;
     transform: none;
+  }
+  /* El enlace al menú, al pie de la foto, alineado con el texto. */
+  .place-card__link {
+    position: absolute;
+    left: calc(5px + 0.9rem);
+    bottom: calc(5px + 0.3rem);
+    z-index: 1;
   }
   .place-card__flip {
     position: relative;
@@ -760,6 +794,9 @@
     font-style: italic;
     font-size: 1.12rem;
     color: var(--color-ink-soft);
+  }
+  .summary-card__link {
+    margin-top: 0.1rem;
   }
   .address {
     display: grid;

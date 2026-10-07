@@ -47,6 +47,12 @@ describe('checkConfig', () => {
     expect(problems.some((p) => p.includes('repetido'))).toBe(true);
   });
 
+  it('pide enlaces completos (con https://) para los menús', () => {
+    const c = clone();
+    c.places[0].link = { label: 'Ver el menú', url: 'elyerromenu.com/b/restaurante-d-rolando' };
+    expect(checkConfig(c)).toEqual([expect.stringContaining('places[0].link.url')]);
+  });
+
   it('detecta fechas excluidas con formato incorrecto', () => {
     const c = clone();
     c.schedule.excludedDates = ['12/10/2026'];

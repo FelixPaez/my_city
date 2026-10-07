@@ -11,6 +11,7 @@ import type { Section } from '../../state/flow.ts';
 import { useFlow } from '../../state/flowContext.ts';
 import { saveFlow } from '../../state/persistence.ts';
 import { Button, ButtonLink } from '../../ui/Button.tsx';
+import { ExternalLink } from '../../ui/ExternalLink.tsx';
 import { Postmark } from '../../ui/Postmark.tsx';
 import { RevealText } from '../../ui/RevealText.tsx';
 import { PlaceArt } from '../plan/PlaceArt.tsx';
@@ -100,6 +101,11 @@ export function SummaryScreen() {
           </div>
           <h3 className="summary-card__title">{place.name}</h3>
           <p className="summary-card__tagline">{place.tagline}</p>
+          {place.link && (
+            <ExternalLink href={place.link.url} label={`${place.link.label}: ${place.name} (se abre en otra pestaña)`} className="summary-card__link">
+              {place.link.label}
+            </ExternalLink>
+          )}
           <dl className="address">
             <AddressLine label={config.summary.planLabel} value={placeLabel(place) === place.name ? place.name : `${place.name} (${placeLabel(place)})`} onEdit={() => edit('place')} />
             <AddressLine label={config.summary.dateLabel} value={capitalize(formatDateLong(date))} onEdit={() => edit('date')} />

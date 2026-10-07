@@ -74,7 +74,7 @@ export function QuestionPage({ revealed }: { revealed: boolean }) {
             <RevealText
               as="h2"
               text={fill(config.question.text)}
-              className="letter__question"
+              className={revealed ? 'letter__question letter__question--ink' : 'letter__question'}
               complete={revealed}
               onDone={() => setDone(true)}
             />

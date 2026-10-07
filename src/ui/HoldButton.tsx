@@ -1,4 +1,4 @@
-import { animate, useMotionValue, useTransform, type AnimationPlaybackControls, type MotionValue } from 'motion/react';
+import { animate, useMotionValue, useTransform, type AnimationPlaybackControls, type MotionValue, type Transition } from 'motion/react';
 import * as m from 'motion/react-m';
 import { useRef, type ReactNode } from 'react';
 import { feedback } from '../design/feedback.ts';
@@ -11,6 +11,8 @@ type HoldButtonProps = {
   /** Segundos que hay que mantener. */
   duration?: number;
   icon?: ReactNode;
+  /** Cómo vuelve a cero si se suelta antes de tiempo (por defecto, un muelle rápido). */
+  release?: Transition;
   onPressStart?: () => void;
   /** pointerDown = true si se completó con el dedo (o el ratón) todavía apoyado. */
   onComplete: (pointerDown: boolean) => void;
@@ -21,7 +23,7 @@ type HoldButtonProps = {
  * (solo transform). Si se suelta antes, vuelve con un muelle. Con teclado:
  * Espacio se mantiene; Enter (o un lector de pantalla) lo completa al instante.
  */
-export function HoldButton({ label, progress, duration = 1.3, icon, onPressStart, onComplete }: HoldButtonProps) {
+export function HoldButton({ label, progress, duration = 1.3, icon, release: releaseTransition = spring.buoy, onPressStart, onComplete }: HoldButtonProps) {
   const own = useMotionValue(0);
   const p = progress ?? own;
   const controls = useRef<AnimationPlaybackControls | null>(null);
@@ -54,7 +56,7 @@ export function HoldButton({ label, progress, duration = 1.3, icon, onPressStart
     if (done.current || !holding.current) return;
     holding.current = false;
     controls.current?.stop();
-    controls.current = animate(p, 0, spring.buoy);
+    controls.current = animate(p, 0, releaseTransition);
   };
 
   // Primera mitad del anillo (derecha) y segunda (izquierda), en el sentido de las agujas.

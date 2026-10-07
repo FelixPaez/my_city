@@ -67,6 +67,9 @@ export function checkConfig(config: Config): string[] {
     if (place.image && /^\//.test(place.image)) {
       add(`${where}.image`, 'escribe la ruta sin "/" inicial (ej. places/drolando.webp)');
     }
+    if (place.link && !/^https:\/\/\S+$/.test(place.link.url)) {
+      add(`${where}.link.url`, 'debe ser una dirección completa que empiece por https://');
+    }
   });
 
   const s = config.schedule;

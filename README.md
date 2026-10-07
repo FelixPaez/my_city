@@ -24,8 +24,9 @@ Cuando desaparece, está lista para enviar.
 | `sender.name` | Tu nombre, como quieres firmar la carta |
 | `sender.whatsapp` | Tu número en formato internacional, solo dígitos: Cuba = `53` + 8 cifras → `'5351234567'` |
 | `meta` | Título y frase de la vista previa del enlace en WhatsApp |
-| `intro` | Título y subtítulo de la primera pantalla |
-| `letter.pages` | La carta: de 2 a 4 páginas. `advance` es el gesto para pasar: `'tap'` (tocar), `'hold'` (mantener: lo que sigue está en tinta invisible) o `'swipe'` (deslizar) |
+| `intro` | El saludo y la frase de la primera pantalla, y la pista (solo indica: la carta se abre tocando la paloma) |
+| `letter.envelope` | Lo que va escrito a mano en el sobre (`'Para {nombre}'`) |
+| `letter.pages` | La carta: de 2 a 4 páginas. `advance` es el gesto para pasar: `'tap'` (tocar), `'hold'` (mantener: lo que sigue está en tinta invisible y solo aparece mientras ella calienta el papel) o `'swipe'` (deslizar) |
 | `question` | La pregunta y los textos de Sí / No |
 | `noButton` | Las frases del No que huye, cuántos intentos (`maxAttempts`) y si después aparece «Mejor otro día» |
 | `celebration`, `decline`, `farewell` | Textos tras el Sí, tras «Mejor otro día» y de la despedida final |
@@ -44,21 +45,26 @@ Huecos que se rellenan solos: `{nombre}` (su nombre) y `{remitente}` (el tuyo) e
 
 ## 2. Los planes
 
-Cada plan es una foto de las de antes. Funciona igual con 3, 5 u 8. Copia un bloque dentro de `places` y cámbialo:
+Cada plan es una foto de las de antes. Funciona igual con 3, 6 u 8 (ahora son seis: D’Rolando, Pati,
+la Bodeguita, Don Isaac, el lugar sorpresa y el pasadía). Copia un bloque dentro de `places` y cámbialo:
 
 ```ts
 {
   id: 'drolando',                     // único, sin espacios ni tildes
   name: 'D’Rolando',                  // va escrito a mano bajo la foto y sale en el mensaje
   tagline: 'Una cena rica, sin mirar el reloj',
-  description: 'Mesa para dos, buena comida y toda la conversación que haga falta.',
+  description: 'Parrillada de cocina criolla y de tradición: …',
   illustration: 'restaurant',         // dibujo de respaldo: restaurant · icecream · bodeguita · mystery-city · pasadia
   image: 'places/drolando.webp',      // opcional: la foto (ver abajo)
-  imageAlt: 'El salón de D’Rolando',  // opcional: descripción de la foto
+  imageAlt: 'La terraza de D’Rolando…', // opcional: descripción de la foto
   imageFocus: 'center 30%',           // opcional: qué parte de la foto se ve
+  link: { label: 'Ver el menú en El Yerro', url: 'https://elyerromenu.com/b/restaurante-d-rolando/seller/bazar-ym' },
   times: { from: '19:00', to: '23:30' }, // opcional: la franja en la que puedes (ver abajo)
 },
 ```
+
+- `link` pone un enlace al pie de la foto y en el resumen (D’Rolando, Pati y Don Isaac llevan su menú en
+  El Yerro). Se abre en otra pestaña, así que la invitación sigue donde estaba; tocarlo no elige el plan.
 
 - `times` es **la franja en la que puedes quedar**. Ella elige la hora exacta deslizando el sol por un arco,
   de 15 en 15 minutos (`schedule.stepMinutes`), y el cielo cambia a esa hora mientras lo mueve.
@@ -77,6 +83,7 @@ Cada plan es una foto de las de antes. Funciona igual con 3, 5 u 8. Copia un blo
 - Guárdalas en **`public/places/`** con un nombre sencillo, sin espacios ni tildes: `drolando.webp`.
 - En el plan, `image: 'places/drolando.webp'` (sin `/` al principio).
 - Para convertir y comprimir: [squoosh.app](https://squoosh.app) → WebP, calidad 70–80, ancho 1000.
+- Las fotos tal como llegaron se guardan en `fotos-originales/` (en tu computadora; no se suben a GitHub).
 
 Las fotos reales reciben un toque de foto antigua (viñeta y un punto de sepia) para que combinen con el resto.
 Mientras un plan no tenga foto, se ve su ilustración, que además hace de fondo mientras la foto carga.
@@ -100,7 +107,7 @@ Al elegir un día, el arco propone la hora del medio de la franja; ella la mueve
 Las horas son siempre las de **Santa Clara** (`location.timeZone`), aunque alguien abra el enlace
 con el móvil en otra zona horaria. El cambio de hora de Cuba está contemplado.
 
-## 4. Probar en tu ordenador
+## 4. Probar en tu computadora
 
 ```bash
 npm install        # solo la primera vez
@@ -147,8 +154,10 @@ Antes de enviarle el enlace:
 
 ## 6. Rendimiento y datos móviles
 
-- JS inicial ~133 KB gzip; las pantallas del plan (~12 KB) se descargan mientras ella lee la pregunta.
-- Fuentes propias (sin Google Fonts), cero peticiones a otros dominios, sin cookies ni analítica.
+- JS inicial ~134 KB gzip; las pantallas del plan (~13 KB) se descargan mientras ella lee la pregunta.
+- Fuentes propias (sin Google Fonts), cero peticiones a otros dominios, sin cookies ni analítica
+  (los menús de El Yerro solo se abren si ella toca su enlace).
+- Las cuatro fotos pesan entre 39 y 50 KB cada una y solo se descargan al llegar a los planes.
 - La ciudad es SVG dibujado en el móvil (0 KB de imágenes): cada capa se dibuja una vez y sus tres
   tonos (día, crepúsculo y noche) se funden solo con opacidad.
 - El sonido se sintetiza en el móvil (0 KB de audio): brisa, pájaros, grillos, el arrullo de la paloma

@@ -24,7 +24,8 @@
     margin-top: 0.5rem;
     max-width: 22rem;
   }
-  /* En móvil la indicación va abajo, centrada; en escritorio, bajo el título. */
+  /* En móvil la indicación va abajo, centrada; en escritorio, bajo el título.
+     Es solo un letrero: no recibe toques (la carta se abre en la paloma). */
   .intro__hint {
     position: fixed;
     left: 0;
@@ -32,6 +33,13 @@
     bottom: calc(env(safe-area-inset-bottom) + 1.75rem);
     display: flex;
     justify-content: center;
+    pointer-events: none;
+  }
+  .intro__arrow {
+    transition: opacity var(--duration-enter) var(--ease-surface);
+  }
+  .intro__arrow-nudge {
+    animation: arrow-nudge 1.6s var(--ease-swell) infinite;
   }
   .intro__dove {
     position: absolute;
@@ -54,7 +62,9 @@
 
   /* ---------- Indicaciones ---------- */
 
-  .hint-button {
+  /* `hint-tag` es la misma pastilla, pero solo informativa (no es un botón). */
+  .hint-button,
+  .hint-tag {
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
@@ -200,6 +210,10 @@
   .letter__stack > * {
     grid-area: 1 / 1;
   }
+  /* Posicionado para pintarse por encima del calor de la vela (que va detrás, en absoluto). */
+  .letter__text {
+    position: relative;
+  }
   /* El cuerpo en cursiva de pluma; el saludo y la firma, a mano. */
   .letter__words {
     font-family: var(--font-serif);
@@ -232,23 +246,42 @@
     margin-top: 1.25rem;
     text-align: right;
   }
-  /* Tinta invisible: el rastro casi no se ve (limón seco); el calor la vuelve sepia. */
-  .letter__text--ghost .letter__words,
-  .letter__text--ghost .letter__question {
-    color: #b59a6a;
+  /* Tinta invisible: no se ve nada hasta que el calor la revela. Cada palabra aparece
+     primero dorada (el limón que empieza a tostarse) y se queda sepia oscuro. */
+  .ink-layer {
+    align-self: center;
   }
-  .letter__text--ink .letter__words,
-  .letter__text--ink .letter__question {
+  .ink-word {
+    position: relative;
+  }
+  .ink-word__light,
+  .ink-word__dark {
+    opacity: 0;
+  }
+  .ink-word__light {
+    color: #c4883f;
+  }
+  .ink-word__dark {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .letter__words--ink,
+  .letter__question--ink {
     color: #5a3a26;
   }
   .letter__ink-note {
     align-self: end;
-    margin-bottom: -2.25rem;
-    font-size: var(--text-small);
-    font-weight: 600;
+    margin-bottom: -2.5rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.3;
     color: var(--color-dusk);
     text-align: center;
   }
+
+  /* El calor de la vela detrás del papel (todo crece con el progreso de mantener presionado). */
   .ink-warmth {
     position: absolute;
     inset: -20% -15%;
@@ -256,11 +289,97 @@
     place-items: center;
     pointer-events: none;
   }
-  .ink-warmth__glow {
-    width: 110%;
+  .ink-warmth > * {
+    grid-area: 1 / 1;
+  }
+  /* El papel se tuesta alrededor del calor. */
+  .ink-warmth__toast {
+    width: 118%;
     aspect-ratio: 1.3;
     border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(255 196 120 / 0.55), rgb(255 214 150 / 0.28) 45%, rgb(255 214 150 / 0) 100%);
+    background: radial-gradient(closest-side, rgb(214 160 92 / 0.14), rgb(196 128 62 / 0.2) 60%, rgb(170 104 48 / 0.13) 80%, rgb(170 104 48 / 0) 100%);
+    mix-blend-mode: multiply;
+  }
+  /* La luz atraviesa el papel… */
+  .ink-warmth__glow {
+    width: 104%;
+    aspect-ratio: 1.25;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 206 132 / 0.62), rgb(255 186 104 / 0.34) 42%, rgb(255 198 136 / 0.12) 72%, rgb(255 210 150 / 0) 100%);
+  }
+  /* …y el centro, más caliente, tiembla con la llama. */
+  .ink-warmth__core {
+    width: 52%;
+    aspect-ratio: 1.3;
+  }
+  .ink-warmth__flicker {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 246 222 / 0.8), rgb(255 222 160 / 0.38) 55%, rgb(255 222 160 / 0) 100%);
+    animation: ink-flicker 1.7s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+  /* El aire caliente que sube. */
+  .ink-warmth__rising {
+    position: relative;
+    width: 64%;
+    height: 72%;
+  }
+  .ink-warmth__rising > span {
+    position: absolute;
+    bottom: 0;
+    left: 30%;
+    width: 40%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 238 204 / 0.55), rgb(255 238 204 / 0));
+    opacity: 0;
+    animation: ink-rise 2.6s var(--ease-swell) infinite;
+    animation-play-state: paused;
+  }
+  .ink-warmth__rising > span:nth-child(2) {
+    left: 12%;
+    width: 32%;
+    animation-delay: -0.9s;
+  }
+  .ink-warmth__rising > span:nth-child(3) {
+    left: 54%;
+    width: 36%;
+    animation-delay: -1.7s;
+  }
+  .ink-warmth[data-heating='true'] .ink-warmth__flicker,
+  .ink-warmth[data-heating='true'] .ink-warmth__rising > span {
+    animation-play-state: running;
+  }
+
+  /* La vela del botón: se enciende mientras ella mantiene presionado. */
+  .candle {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+  .candle > svg {
+    position: relative;
+    display: block;
+  }
+  .candle__halo {
+    position: absolute;
+    left: 50%;
+    top: 32%;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin: -1.3rem 0 0 -1.3rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 190 100 / 0.75), rgb(255 190 100 / 0.25) 55%, rgb(255 190 100 / 0));
+  }
+  .candle__flicker {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .candle[data-heating='true'] .candle__flicker {
+    animation: candle-flicker 0.9s ease-in-out infinite alternate;
   }
   .letter__footer {
     min-height: 7rem;
@@ -474,6 +593,66 @@
     opacity: 0;
   }
 }
+@keyframes ink-flicker {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.04) translate3d(-1%, -1%, 0);
+  }
+  33% {
+    opacity: 0.76;
+    transform: scale(0.98) translate3d(1%, 0, 0);
+  }
+  52% {
+    opacity: 0.96;
+    transform: scale(1.03) translate3d(0, -2%, 0);
+  }
+  70% {
+    opacity: 0.8;
+    transform: scale(0.99) translate3d(-1%, 1%, 0);
+  }
+  86% {
+    opacity: 1;
+    transform: scale(1.05) translate3d(1%, -1%, 0);
+  }
+}
+@keyframes ink-rise {
+  0% {
+    transform: translate3d(0, 10%, 0) scale(0.7);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, -130%, 0) scale(1.2);
+    opacity: 0;
+  }
+}
+@keyframes candle-flicker {
+  0% {
+    transform: scale(1, 1) rotate(-3deg);
+  }
+  50% {
+    transform: scale(0.94, 1.08) rotate(2deg);
+  }
+  100% {
+    transform: scale(1.03, 0.96) rotate(-1deg);
+  }
+}
+@keyframes arrow-nudge {
+  0%,
+  100% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  50% {
+    transform: translate3d(3px, 0, 0);
+  }
+}
 @keyframes hint-rise {
   0%,
   100% {
@@ -485,7 +664,13 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .pulse-dot::after,
-  .hint-button--swipe .hint-button__icon {
+  .hint-button--swipe .hint-button__icon,
+  .intro__arrow-nudge,
+  .ink-warmth__flicker,
+  .candle[data-heating='true'] .candle__flicker {
     animation: none;
+  }
+  .ink-warmth__rising {
+    display: none;
   }
 }

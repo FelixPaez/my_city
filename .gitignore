@@ -5,6 +5,9 @@ dist-ssr
 *.local
 coverage
 
+# Fotos tal como llegaron (las que usa la web están en public/places, ya recortadas)
+fotos-originales
+
 # Logs
 *.log
 npm-debug.log*

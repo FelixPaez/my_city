@@ -45,6 +45,8 @@ export type Place = {
   badge?: string;
   /** Foto boca abajo que se voltea al tocarla. */
   mystery?: boolean;
+  /** Enlace bajo la foto (ej. su menú en El Yerro); se abre en otra pestaña. */
+  link?: { label: string; url: string };
 };
 
 export type Config = {
@@ -65,6 +67,8 @@ export type Config = {
   timeFormat: '12h' | '24h';
   intro: { title: string; subtitle: string; hint: Hint };
   letter: {
+    /** Lo que va escrito a mano en el sobre (ej. «Para {nombre}»). */
+    envelope: string;
     greeting: string;
     pages: { text: string; advance: LetterAdvance }[];
     hints: Record<LetterAdvance, Hint>;

@@ -15,14 +15,14 @@ import type { Config } from './config.types.ts';
  */
 export const config: Config = {
   recipient: {
-    name: 'TODO', // TODO: su nombre (corto: va escrito a mano en el sobre)
+    name: 'Marcia', // corto: va escrito a mano en el sobre
   },
 
   sender: {
-    name: 'TODO', // TODO: tu nombre, tal como quieres firmar la carta
+    name: 'Félix', // así se firma la carta
     // Tu WhatsApp en formato internacional, solo dígitos y sin "+".
-    // Cuba: 53 + tu número de 8 cifras → '5351234567'.
-    whatsapp: 'TODO', // TODO: tu número
+    // Cuba: 53 + tu número de 8 cifras.
+    whatsapp: '5358496393',
   },
 
   // Vista previa del enlace en WhatsApp: genera curiosidad sin revelar la pregunta.
@@ -39,8 +39,9 @@ export const config: Config = {
   timeFormat: '12h',
 
   intro: {
-    title: 'Para {nombre}',
-    subtitle: 'Te llegó carta. La trajo una paloma, imagínate.',
+    title: 'Holaaa {nombre},',
+    subtitle: 'hay una paloma por ahí con una carta, dicen que es para ti…',
+    // Solo indica dónde tocar: la carta se abre tocando la paloma.
     hint: {
       touch: 'Toca la paloma',
       mouse: 'Haz clic en la paloma',
@@ -48,17 +49,18 @@ export const config: Config = {
   },
 
   letter: {
+    // Lo que va escrito a mano en el sobre.
+    envelope: 'Para {nombre}',
     greeting: '¡Hola, {nombre}!',
-    // TODO: borrador sugerido; reescríbelo con tus palabras (2 a 4 páginas).
-    // `advance` es el gesto con el que se pasa a lo siguiente: 'tap' (tocar),
+    // De 2 a 4 páginas. `advance` es el gesto con el que se pasa a lo siguiente: 'tap' (tocar),
     // 'hold' (mantener presionado: lo que sigue está en tinta invisible) o 'swipe' (deslizar).
     pages: [
       {
-        text: 'Dicen que ya nadie escribe cartas, así que te mandé esta con una paloma. Un poco dramático, lo sé.',
+        text: 'Dicen que ya nadie escribe cartas, así que te mandé esta con una paloma (tengo unas cuantas adiestradas). Un poco peculiar, lo sé.',
         advance: 'tap',
       },
       {
-        text: 'Me encanta hablar contigo, y pensé que sería todavía mejor en persona, con Santa Clara de fondo.',
+        text: 'Me gusta hablar contigo, ya conozco en parte tu manera de escribir y estuve pensando que también me gustaría conocer tu manera de hablar…',
         advance: 'hold',
       },
       {
@@ -107,21 +109,28 @@ export const config: Config = {
   // Cada lugar es una foto de las de antes. Funciona igual con 3, 5 u 8.
   // `times`: la franja en la que se puede quedar; ella elige la hora exacta deslizando el sol.
   // Sin `times`, de 12 del mediodía a 12 de la noche (`schedule.defaultWindow`).
-  // Fotos: WebP de 1000×800 px y menos de 150 KB en `public/places/`.
+  // Fotos: horizontales 5:4 en WebP (de menos de 150 KB) en `public/places/`.
+  // `link`: un enlace bajo la foto, por ejemplo a su menú en El Yerro (se abre en otra pestaña).
   places: [
     {
       id: 'drolando',
       name: 'D’Rolando',
       tagline: 'Una cena rica, sin mirar el reloj',
-      description: 'Mesa para dos, buena comida y toda la conversación que haga falta.',
+      description: 'Parrillada de cocina criolla y de tradición: desayunos, almuerzos, cenas y un atardecer precioso desde su terraza.',
       illustration: 'restaurant',
+      image: 'places/drolando.webp',
+      imageAlt: 'La terraza de D’Rolando: cortinas al viento y sillas con lazos rojos frente a la ciudad',
+      link: { label: 'Ver el menú en El Yerro', url: 'https://elyerromenu.com/b/restaurante-d-rolando/seller/bazar-ym' },
     },
     {
       id: 'pati',
       name: 'Heladería Pati',
       tagline: 'Primero el helado, después la conversación (o al revés)',
-      description: 'Un helado bien frío, un banquito cerca y la tarde por delante.',
+      description: 'Especialidades de helado como la Copa Pati o el Jimagua, y si da hambre, pizzas, sándwiches y hamburguesas.',
       illustration: 'icecream',
+      image: 'places/pati.webp',
+      imageAlt: 'Un perrito cocker mirando con ganas una copa de helado',
+      link: { label: 'Ver el menú en El Yerro', url: 'https://elyerromenu.com/b/helados-pati/seller/bazar-ym' },
     },
     {
       id: 'bodeguita',
@@ -129,6 +138,18 @@ export const config: Config = {
       tagline: 'Un traguito, algo de picar y buena compañía',
       description: 'De esos lugares con alma, perfecto para brindar porque dijiste que sí.',
       illustration: 'bodeguita',
+      image: 'places/bodeguita.webp',
+      imageAlt: 'La fachada azul de La Bodeguita del Medio, con sus puertas de madera',
+    },
+    {
+      id: 'don-isaac',
+      name: 'Don Isaac',
+      tagline: 'Pizza, tacos y algo rico para compartir',
+      description: 'Entrantes para picar, tacos, espaguetis, pizzas y la hamburguesa de la casa: la Don Isaac.',
+      illustration: 'restaurant',
+      image: 'places/don-isaac.webp',
+      imageAlt: 'El letrero de neón de Don Isaac sobre una pared de hojas',
+      link: { label: 'Ver el menú en El Yerro', url: 'https://elyerromenu.com/b/don-isaac/seller/bazar-ym' },
     },
     {
       id: 'sorpresa',
