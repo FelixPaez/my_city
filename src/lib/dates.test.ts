@@ -172,8 +172,8 @@ describe('WhatsApp', () => {
   });
 
   it('los planes sorpresa salen con su nombre (sin revelar nada) y la nota se incluye', () => {
-    const msg = buildMessage({ ...choice, placeId: 'sorpresa', note: 'Llevo yo el postre' });
-    expect(msg).toContain('Un lugar sorpresa');
+    const msg = buildMessage({ ...choice, placeId: 'pasadia', date: '2026-10-10', note: 'Llevo yo el postre' });
+    expect(msg).toContain('Pasadía sorpresa');
     expect(msg).toContain('Llevo yo el postre');
   });
 

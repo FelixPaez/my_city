@@ -14,8 +14,8 @@ se sella y la paloma se la lleva volando. De fondo, la ciudad con el cielo real 
 Decisiones del autor (octubre de 2026): idea «Carta por paloma», paleta «atardecer colonial» y el pasadía
 solo los sábados y domingos. Después: la intro saluda («Holaaa Marcia, hay una paloma por ahí con una
 carta…») y su pista solo indica (la carta se abre tocando la paloma); la tinta invisible no se ve en
-absoluto hasta que ella aprieta, y aparece a medida que calienta el papel; se suma Don Isaac a los planes
-y los lugares con menú en El Yerro llevan su enlace.
+absoluto hasta que ella aprieta, y aparece a medida que calienta el papel; Don Isaac ocupa el sitio del
+lugar sorpresa (esa tarjeta se quitó) y los lugares con menú en El Yerro llevan su enlace.
 
 ## Flujo (el mismo de la botella)
 
@@ -63,9 +63,9 @@ DM Sans (interfaz). Nunca menos de 16 px en campos (iOS no hace zoom).
 - **Transiciones**: una persiana colonial (`ShutterStage`) cuyas tablillas giran entre pantallas.
 - **Progreso**: una fila de farolas que se encienden; una palomita salta de una a otra y al final se
   ilumina la glorieta.
-- **Planes**: D’Rolando, Heladería Pati, La Bodeguita del Medio, Don Isaac, un lugar sorpresa y un pasadía
-  sorpresa. Fotos de las de antes (borde ondulado con máscara CSS, viñeta), nombre escrito a mano y un
-  lacre que cae al elegir. Las sorpresas están boca abajo (cartulina con una «?» a mano). Al pie de la
+- **Planes**: D’Rolando, Heladería Pati, La Bodeguita del Medio, Don Isaac y un pasadía sorpresa. Fotos
+  de las de antes (borde ondulado con máscara CSS, viñeta), nombre escrito a mano y un lacre que cae al
+  elegir. El pasadía está boca abajo (cartulina con una «?» a mano) hasta que ella lo voltea. Al pie de la
   foto, el enlace a su menú en El Yerro (fuera de la opción elegible: tocarlo no elige el plan).
 - **Fecha y hora**: hojitas de almanaque con la luna de cada noche y el arco del sol sobre la silueta de
   la ciudad (de 15 en 15 minutos; el cielo cambia mientras se arrastra).

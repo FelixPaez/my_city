@@ -45,8 +45,8 @@ Huecos que se rellenan solos: `{nombre}` (su nombre) y `{remitente}` (el tuyo) e
 
 ## 2. Los planes
 
-Cada plan es una foto de las de antes. Funciona igual con 3, 6 u 8 (ahora son seis: D’Rolando, Pati,
-la Bodeguita, Don Isaac, el lugar sorpresa y el pasadía). Copia un bloque dentro de `places` y cámbialo:
+Cada plan es una foto de las de antes. Funciona igual con 3, 5 u 8 (ahora son cinco: D’Rolando, Pati,
+la Bodeguita, Don Isaac y el pasadía sorpresa). Copia un bloque dentro de `places` y cámbialo:
 
 ```ts
 {
@@ -74,7 +74,7 @@ la Bodeguita, Don Isaac, el lugar sorpresa y el pasadía). Copia un bloque dentr
   - Sin `times`: la franja por defecto (`schedule.defaultWindow`, ahora del mediodía a medianoche).
 - `days: ['sábado', 'domingo']` deja ese plan solo esos días (los demás aparecen tachados).
 - `badge: 'Solo fines de semana'` pone una etiqueta pequeña sobre la foto.
-- `mystery: true` deja la foto boca abajo hasta que ella la toca (así son «Un lugar sorpresa» y el pasadía).
+- `mystery: true` deja la foto boca abajo hasta que ella la toca (así es el pasadía sorpresa).
 - Para quitar un plan, borra su bloque entero.
 
 ### Fotos

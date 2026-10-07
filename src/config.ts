@@ -152,14 +152,6 @@ export const config: Config = {
       link: { label: 'Ver el menú en El Yerro', url: 'https://elyerromenu.com/b/don-isaac/seller/bazar-ym' },
     },
     {
-      id: 'sorpresa',
-      name: 'Un lugar sorpresa',
-      tagline: 'Tú escoges el día; el lugar lo pongo yo',
-      description: 'Queda en Santa Clara y te va a gustar. No pregunto más: confía.',
-      illustration: 'mystery-city',
-      mystery: true,
-    },
-    {
       id: 'pasadia',
       name: 'Pasadía sorpresa',
       tagline: 'Un día entero para desconectar',
