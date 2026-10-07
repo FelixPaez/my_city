@@ -4,7 +4,7 @@ Invitación web interactiva para una cita en Santa Clara: una paloma mensajera c
 atardecer, se posa en un balcón de hierro con una carta lacrada, ella la abre y al final elige el plan,
 que se confirma por WhatsApp. Estática, ligera y pensada para el móvil (con diseño propio para escritorio).
 
-Dirección pública: **https://felixpaez.github.io/mi_ciudad/**
+Dirección pública: **https://felixpaez.github.io/my_city/**
 
 El plan completo y las decisiones de diseño están en [docs/PLAN.md](docs/PLAN.md).
 Es hermana de «Mensaje en una botella» (la versión del mar): misma base técnica, otra historia.
@@ -148,7 +148,7 @@ Antes de enviarle el enlace:
 
 1. Que no quede ningún `TODO` en `src/config.ts` (la cinta de BORRADOR desaparece).
 2. Recorre la experiencia entera en tu móvil, con `?paso=inicio` para empezar de cero.
-3. Envíale la dirección **sin parámetros**: `https://felixpaez.github.io/mi_ciudad/`.
+3. Envíale la dirección **sin parámetros**: `https://felixpaez.github.io/my_city/`.
 4. WhatsApp guarda la vista previa del enlace: compártelo primero contigo mismo para comprobar
    que se ve la paloma sobre los tejados al atardecer.
 
