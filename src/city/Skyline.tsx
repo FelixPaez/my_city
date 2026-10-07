@@ -353,7 +353,10 @@ function farola(key: string, x: number, top: number, ground: number) {
   );
 }
 
-/** La glorieta del Parque Vidal: plataforma, columnas, barandilla y techo de campana con bombillos. */
+/**
+ * La glorieta del Parque Vidal: plataforma, columnas, barandilla y techo de campana con bombillos.
+ * Si cambian sus proporciones, hay que ajustar `glorietaHeight` (layout.ts), que la apoya en el suelo.
+ */
 function glorieta({ x, width: w, top }: CityLayout['glorieta']) {
   const half = w / 2;
   const roofH = w * 0.34;

@@ -32,10 +32,15 @@ export type CityLayout = {
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
+/** Alto total de la glorieta según su ancho: techo, columnas, plataforma y escalones (ver `glorieta` en Skyline). */
+export const glorietaHeight = (width: number) => width * 0.68 + 19;
+
 export function cityLayout({ width: W, height: H }: Pick<Viewport, 'width' | 'height'>): CityLayout {
   const desktop = W >= 1024;
   const railTop = Math.round(H * (desktop ? 0.86 : 0.865));
   const ground = Math.round(H * 0.8);
+  // La glorieta se apoya en el suelo del parque, como las farolas: su alto sale de su ancho.
+  const onGround = (x: number, width: number) => ({ x, width, top: ground + 6 - glorietaHeight(width) });
 
   if (desktop) {
     const lamps = [0.16, 0.31, 0.5, 0.66, 0.8].map((f) => ({ x: W * f, top: H * 0.715 }));
@@ -49,7 +54,7 @@ export function cityLayout({ width: W, height: H }: Pick<Viewport, 'width' | 'he
       roofs: { min: H * 0.55, max: H * 0.63 },
       hotel: { x: W * 0.14, width: clamp(W * 0.055, 70, 96), top: H * 0.43 },
       tower: { x: W * 0.86, top: H * 0.385 },
-      glorieta: { x: W * 0.4, width: clamp(W * 0.13, 160, 220), top: H * 0.565 },
+      glorieta: onGround(W * 0.4, clamp(W * 0.13, 160, 220)),
       palms: [
         { x: W * 0.06, top: H * 0.47, lean: -3 },
         { x: W * 0.25, top: H * 0.5, lean: 2 },
@@ -79,7 +84,7 @@ export function cityLayout({ width: W, height: H }: Pick<Viewport, 'width' | 'he
     roofs: { min: H * 0.56, max: H * 0.635 },
     hotel: { x: W * 0.17, width: clamp(W * 0.15, 52, 70), top: H * 0.445 },
     tower: { x: W * 0.8, top: H * 0.395 },
-    glorieta: { x: W * 0.3, width: clamp(W * 0.32, 100, 136), top: H * 0.585 },
+    glorieta: onGround(W * 0.3, clamp(W * 0.32, 100, 136)),
     palms: [
       { x: W * 0.07, top: H * 0.48, lean: -3 },
       { x: W * 0.62, top: H * 0.505, lean: 2 },
