@@ -7,7 +7,7 @@ import { feedback } from '../../design/feedback.ts';
 import { spring, transition } from '../../design/motion.ts';
 import { useIsDesktop } from '../../hooks/useMediaQuery.ts';
 import { useNow } from '../../hooks/useNow.ts';
-import { availableTimes, dayBlocked } from '../../lib/dates.ts';
+import { availableTimes, dayBlocked, offeredPlaces } from '../../lib/dates.ts';
 import { useFlow } from '../../state/flowContext.ts';
 import { Button } from '../../ui/Button.tsx';
 import { ExternalLink } from '../../ui/ExternalLink.tsx';
@@ -19,13 +19,14 @@ import { PlaceArt } from './PlaceArt.tsx';
 /** Elegir el plan: cada lugar es una foto de las de antes, en un carrusel deslizable. */
 export function PlanScreen() {
   const { state, dispatch } = useFlow();
-  const places = config.places;
+  const now = useNow();
+  // Se decide al entrar, para que una foto no desaparezca mientras ella mira el carrusel.
+  const [places] = useState(() => offeredPlaces(now));
   const desktop = useIsDesktop();
   const scroller = useRef<HTMLDivElement>(null);
   const initial = Math.max(0, places.findIndex((p) => p.id === state.choice.placeId));
   const [active, setActive] = useState(initial);
   const editing = state.returnTo === 'summary';
-  const now = useNow();
 
   // La foto activa es la más centrada (el carrusel usa scroll-snap nativo).
   useEffect(() => {
@@ -59,7 +60,7 @@ export function PlanScreen() {
 
   const choose = (place: Place, index: number) => {
     const { date, time } = state.choice;
-    // Si el nuevo plan no se puede ese día (el pasadía es solo el fin de semana), habrá que
+    // Si el nuevo plan no se puede ese día (el pasadía es solo un día), habrá que
     // elegir otro día; si no tiene la hora elegida, habrá que elegir la hora otra vez.
     const keepDate = !(date && dayBlocked(place, date));
     const keepTime = Boolean(date && time && availableTimes(place, date, now).includes(time));

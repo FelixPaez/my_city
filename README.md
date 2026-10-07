@@ -72,8 +72,10 @@ la Bodeguita, Don Isaac y el pasadía sorpresa). Copia un bloque dentro de `plac
   - `'sunset'`: la franja se calcula sola cada día con la **puesta de sol real** (de 90 a 15 minutos antes).
   - `['16:00', '17:30']`: solo esas horas, si prefieres horas fijas.
   - Sin `times`: la franja por defecto (`schedule.defaultWindow`, ahora del mediodía a medianoche).
-- `days: ['sábado', 'domingo']` deja ese plan solo esos días (los demás aparecen tachados).
-- `badge: 'Solo fines de semana'` pone una etiqueta pequeña sobre la foto.
+- `days: ['sábado', 'domingo']` deja ese plan solo esos días de la semana (los demás aparecen tachados).
+- `dates: ['2026-10-10']` deja ese plan solo esas fechas. Cuando ya pasaron todas, el plan deja de mostrarse.
+- `badge: 'Solo el sábado 10'` pone una etiqueta pequeña sobre la foto.
+- `dateNote` pone una nota bajo los días cuando ella escoge la fecha de ese plan (ej. por qué solo hay una).
 - `mystery: true` deja la foto boca abajo hasta que ella la toca (así es el pasadía sorpresa).
 - Para quitar un plan, borra su bloque entero.
 

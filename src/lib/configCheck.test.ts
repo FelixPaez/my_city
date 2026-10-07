@@ -58,4 +58,10 @@ describe('checkConfig', () => {
     c.schedule.excludedDates = ['12/10/2026'];
     expect(checkConfig(c)).toEqual([expect.stringContaining('schedule.excludedDates')]);
   });
+
+  it('detecta fechas de un plan con formato incorrecto', () => {
+    const c = clone();
+    c.places[0].dates = ['10/10/2026'];
+    expect(checkConfig(c)).toEqual([expect.stringContaining('places[0].dates')]);
+  });
 });

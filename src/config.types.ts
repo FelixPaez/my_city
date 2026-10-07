@@ -41,6 +41,10 @@ export type Place = {
   times?: TimeWindow | 'sunset' | string[];
   /** Solo esos días de la semana (ej. ['sábado', 'domingo']). Si no se indica, cualquiera. */
   days?: Weekday[];
+  /** Solo esas fechas, 'AAAA-MM-DD' (ej. ['2026-10-10']). Cuando pasan todas, el plan deja de mostrarse. */
+  dates?: string[];
+  /** Nota bajo los días al escoger la fecha de este plan (ej. por qué solo hay una). */
+  dateNote?: string;
   /** Etiqueta pequeña sobre la foto (ej. «Solo fines de semana»). */
   badge?: string;
   /** Foto boca abajo que se voltea al tocarla. */

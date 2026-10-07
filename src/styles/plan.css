@@ -545,16 +545,23 @@
     --moon-shadow: transparent;
   }
   .when__caption.pill,
+  .when__note,
   .when__quip {
     width: fit-content;
     margin-inline: auto;
     padding: 0.3rem 0.95rem;
   }
+  .when__note,
   .when__quip {
     margin-top: 0.5rem;
     text-align: center;
     font-family: var(--font-serif);
     font-style: italic;
+  }
+  /* Puede ocupar dos líneas: que se partan parejas. */
+  .when__note {
+    max-width: 24rem;
+    text-wrap: balance;
   }
   .card-panel {
     border-radius: var(--radius-card);

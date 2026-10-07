@@ -69,6 +69,7 @@ export function WhenScreen() {
               </>
             )}
           </div>
+          {place?.dateNote && <p className="when__note pill text-on-sea-soft">{place.dateNote}</p>}
           <AnimatePresence mode="wait">
             {quip && (
               <m.p

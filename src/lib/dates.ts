@@ -140,6 +140,7 @@ export function dayBlocked(place: Place | undefined, iso: string, schedule: Sche
   const weekday = weekdayOf(iso);
   if (schedule.excludedWeekdays.includes(weekday) || schedule.excludedDates.includes(iso)) return 'ese día no está disponible';
   if (place?.days?.length && !place.days.includes(weekday)) return `ese plan es solo el ${listOf(place.days)}`;
+  if (place?.dates?.length && !place.dates.includes(iso)) return `ese plan es solo ${listOf(place.dates.map((d) => formatDateLong(d, true)))}`;
   return null;
 }
 
@@ -211,6 +212,12 @@ export function buildDays(
       reason: blocked ?? (times.length === 0 ? 'ya no quedan horarios' : undefined),
     };
   });
+}
+
+/** Los planes que todavía tienen algún día libre: uno de fecha fija desaparece cuando esa fecha pasa. */
+export function offeredPlaces(now: Date, places: Place[] = config.places, schedule: Schedule = config.schedule): Place[] {
+  const offered = places.filter((place) => buildDays(now, place, schedule).some((day) => day.available));
+  return offered.length ? offered : places;
 }
 
 /** Cómo estará el cielo a esa hora (el cielo se pone así al elegirla). */

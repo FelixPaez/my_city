@@ -14,6 +14,7 @@ import {
   formatTimeSpoken,
   expandWindow,
   formatEdge,
+  offeredPlaces,
   placeTimes,
   quipFor,
   suggestedTime,
@@ -24,7 +25,7 @@ import { isoDateIn, zonedInstant } from './zone.ts';
 
 // El dispositivo está en Tokio (vitest.setup.ts); las horas son las de Santa Clara.
 const havana = (iso: string, time: string) => zonedInstant(iso, time, 'America/Havana');
-const schedule: Config['schedule'] = { ...config.schedule, excludedWeekdays: [], excludedDates: [] };
+const schedule: Config['schedule'] = { ...config.schedule, daysAhead: 14, excludedWeekdays: [], excludedDates: [] };
 // Un plan de atardecer de ejemplo (la config de la ciudad no trae ninguno, pero se puede poner).
 const sunsetPlace: Place = { ...config.places[0], times: 'sunset' };
 const cafe: Place = { ...config.places[0], times: ['09:30', '10:30', '16:00'] };
@@ -144,12 +145,27 @@ describe('horarios', () => {
 });
 
 describe('el pasadía', () => {
-  it('solo se puede el sábado y el domingo', () => {
-    // 2026-10-06 es martes; 2026-10-10 y 2026-10-11, sábado y domingo.
-    expect(dayBlocked(pasadia, '2026-10-06')).toBe('ese plan es solo el sábado y domingo');
+  it('solo se puede el sábado 10 de octubre', () => {
+    expect(dayBlocked(pasadia, '2026-10-11')).toBe('ese plan es solo el sábado 10 de octubre');
     expect(dayBlocked(pasadia, '2026-10-10')).toBeNull();
-    expect(availableTimes(pasadia, '2026-10-06', havana('2026-10-05', '10:00'))).toEqual([]);
-    const days = buildDays(havana('2026-10-05', '10:00'), pasadia, schedule);
+    expect(availableTimes(pasadia, '2026-10-17', havana('2026-10-07', '10:00'))).toEqual([]);
+    const days = buildDays(havana('2026-10-07', '10:00'), pasadia, schedule);
+    expect(days.filter((d) => d.available).map((d) => d.iso)).toEqual(['2026-10-10']);
+  });
+
+  it('deja de ofrecerse cuando ya pasó su fecha', () => {
+    expect(offeredPlaces(havana('2026-10-07', '10:00'), config.places, schedule)).toContain(pasadia);
+    // El sábado a las 9:30 ya no da tiempo: la última salida es a las 11:00 y hacen falta 2 horas.
+    expect(offeredPlaces(havana('2026-10-10', '09:30'), config.places, schedule)).not.toContain(pasadia);
+    expect(offeredPlaces(havana('2026-10-11', '10:00'), config.places, schedule)).toHaveLength(config.places.length - 1);
+  });
+
+  it('con days, solo esos días de la semana', () => {
+    const weekend: Place = { ...pasadia, dates: undefined, days: ['sábado', 'domingo'] };
+    // 2026-10-06 es martes; 2026-10-10 y 2026-10-11, sábado y domingo.
+    expect(dayBlocked(weekend, '2026-10-06')).toBe('ese plan es solo el sábado y domingo');
+    expect(dayBlocked(weekend, '2026-10-10')).toBeNull();
+    const days = buildDays(havana('2026-10-05', '10:00'), weekend, schedule);
     expect(days.filter((d) => d.available).map((d) => d.iso)).toEqual(['2026-10-10', '2026-10-11', '2026-10-17', '2026-10-18']);
   });
 

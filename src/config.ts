@@ -158,14 +158,15 @@ export const config: Config = {
       description: 'Sol, agua y cero apuro. Te digo a dónde vamos cuando llegue el día.',
       illustration: 'pasadia',
       mystery: true,
-      days: ['sábado', 'domingo'],
-      badge: 'Solo fines de semana',
+      dates: ['2026-10-10'], // solo este sábado
+      badge: 'Solo el sábado 10',
+      dateNote: 'Por ahora es la única fecha del pasadía; quizás la próxima semana se abran otras.',
       times: { from: '08:00', to: '11:00' }, // la hora de salida
     },
   ],
 
   schedule: {
-    daysAhead: 14,
+    daysAhead: 25, // de hoy (7 de octubre) al 31 de octubre
     excludedWeekdays: [], // ej. ['lunes', 'martes']
     excludedDates: [], // ej. ['2026-10-12']
     minHoursAhead: 2,

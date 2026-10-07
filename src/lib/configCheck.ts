@@ -64,6 +64,7 @@ export function checkConfig(config: Config): string[] {
       checkWindow(`${where}.times`, place.times);
     }
     place.days?.forEach((d) => WEEKDAYS.includes(d) || add(`${where}.days`, `"${d}" no es un día de la semana`));
+    place.dates?.forEach((d) => DATE.test(d) || add(`${where}.dates`, `"${d}" no es AAAA-MM-DD`));
     if (place.image && /^\//.test(place.image)) {
       add(`${where}.image`, 'escribe la ruta sin "/" inicial (ej. places/drolando.webp)');
     }
